@@ -79,6 +79,8 @@ public class AuctionTheWorldAbstract {
                 (s2CBidUpdate, buf) -> s2CBidUpdate.auctionItem().networkSerialize(buf),
                 buf -> new S2CAuctionUpdate(AuctionItem.networkDeserialize(buf)),
                 S2CAuctionUpdate::handle);
+
+        Events.register();
     }
 
 

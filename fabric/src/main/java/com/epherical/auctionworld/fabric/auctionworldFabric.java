@@ -1,6 +1,7 @@
 package com.epherical.auctionworld.fabric;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.Events;
 import com.epherical.epherolib.CommonPlatform;
 import com.epherical.epherolib.FabricPlatform;
 import com.epherical.epherolib.networking.FabricNetworking;
@@ -15,6 +16,5 @@ public final class auctionworldFabric implements ModInitializer {
         var networking = new FabricNetworking(AuctionTheWorldAbstract.MOD_CHANNEL, true);
         abs = new AuctionTheWorldAbstract(networking);
         CommonPlatform.create(new FabricPlatform());
-        Events.register();
     }
 }
