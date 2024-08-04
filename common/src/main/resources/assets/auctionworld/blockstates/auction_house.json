@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "auctionworld:block/auction_house",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "auctionworld:block/auction_house"
+    },
+    "facing=south": {
+      "model": "auctionworld:block/auction_house",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "auctionworld:block/auction_house",
+      "y": 270
+    }
+  }
+}
