@@ -28,6 +28,7 @@ public class AuctionItem implements TooltipComponent {
     private transient int countOfItems;
     private Instant auctionStarted;
     private long timeLeft;
+    private String currency;
     private int currentPrice;
     private final int buyoutPrice;
     private String seller;
@@ -37,9 +38,10 @@ public class AuctionItem implements TooltipComponent {
 
 
 
-    public AuctionItem(UUID auctionID, List<ItemStack> auctionItems, Instant auctionStarted, long timeLeft, int currentPrice, int buyoutPrice,
+    public AuctionItem(UUID auctionID, String currency, List<ItemStack> auctionItems, Instant auctionStarted, long timeLeft, int currentPrice, int buyoutPrice,
                        String seller, UUID sellerID, ArrayDeque<Bid> bids) {
         this.auctionID = auctionID;
+        this.currency = currency;
         this.auctionItems = auctionItems;
         this.auctionStarted = auctionStarted;
         this.timeLeft = timeLeft;
@@ -134,8 +136,8 @@ public class AuctionItem implements TooltipComponent {
     }
 
     public void finishAuctionWithBuyOut(User user) {
-       if (user.hasEnough(buyoutPrice)) {
-           user.takeCurrency(buyoutPrice);
+       if (user.hasEnough(currency, buyoutPrice)) {
+           user.takeCurrency(currency, buyoutPrice);
            user.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
            timeLeft = 0;
        } else {
@@ -155,8 +157,8 @@ public class AuctionItem implements TooltipComponent {
             int bidAmount = bid.bidAmount();
             User user = userGetter.apply(bid.user());
             // we will start at the top of the stack, and check if the user did a valid bid
-            if (user.hasEnough(bidAmount)) {
-                user.takeCurrency(bidAmount);
+            if (user.hasEnough(currency, bidAmount)) {
+                user.takeCurrency(currency, bidAmount);
                 user.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
                 return;
             } else {
@@ -182,6 +184,7 @@ public class AuctionItem implements TooltipComponent {
 
             AuctionItem auctionItem = new AuctionItem(
                     auction.getUUID("auctionId"),
+                    auction.getString("currency"),
                     loadAllItems(auction),
                     Instant.ofEpochMilli(auction.getLong("startTime")),
                     auction.getLong("timeLeft"),
@@ -204,16 +207,14 @@ public class AuctionItem implements TooltipComponent {
             saveAllItems(single, auction.auctionItems);
             saveAllBids(single, auction.bidStack);
             single.putUUID("auctionId", auction.auctionID);
+            single.putString("currency", auction.currency);
             single.putLong("startTime", auction.auctionStarted.toEpochMilli());
             single.putLong("timeLeft", auction.timeLeft);
             single.putInt("currentPrice", auction.currentPrice);
             single.putInt("buyoutPrice", auction.buyoutPrice);
-            /*single.putInt("bids", auction.bids);
-            single.putString("lastBidder", auction.lastBidder);*/
             single.putString("seller", auction.seller);
             single.putUUID("sellerId", auction.sellerID);
             single.putUUID("auctionId", auction.auctionID);
-            //single.putInt("minBidIncr", auction.minBidIncrement);
 
             auctions.add(single);
         }
@@ -259,7 +260,9 @@ public class AuctionItem implements TooltipComponent {
 
     public void networkSerialize(FriendlyByteBuf buf) {
         buf.writeUUID(auctionID);
+        buf.writeUtf(currency);
         buf.writeItem(auctionItems.get(0));
+        buf.writeInstant(auctionStarted);
         buf.writeLong(timeLeft);
         buf.writeInt(getCurrentBidPrice());
         buf.writeInt(buyoutPrice);
@@ -269,7 +272,7 @@ public class AuctionItem implements TooltipComponent {
     }
 
     public static AuctionItem networkDeserialize(FriendlyByteBuf buf) {
-        AuctionItem auctionItem = new AuctionItem(buf.readUUID(), List.of(buf.readItem()), null, buf.readLong(), buf.readInt(), buf.readInt(), buf.readUtf(), buf.readUUID(), new ArrayDeque<>());
+        AuctionItem auctionItem = new AuctionItem(buf.readUUID(), buf.readUtf(), List.of(buf.readItem()), buf.readInstant(), buf.readLong(), buf.readInt(), buf.readInt(), buf.readUtf(), buf.readUUID(), new ArrayDeque<>());
         auctionItem.setCountOfItems(buf.readInt());
         auctionItem.auctionItems.get(0).setCount(auctionItem.getCountOfItems());
         return auctionItem;
@@ -289,5 +292,9 @@ public class AuctionItem implements TooltipComponent {
     @Override
     public int hashCode() {
         return auctionID != null ? auctionID.hashCode() : 0;
+    }
+
+    public String getCurrency() {
+        return currency;
     }
 }

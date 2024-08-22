@@ -51,7 +51,7 @@ public class ClaimCommand {
                 int randomPrice = random.nextInt(100);
                 int randomBuyout = randomPrice + 30;
                 User seller = mod.getUserManager().getUserByID(Util.NIL_UUID);
-                manager.addAuctionItem(List.of(stack), Instant.now(), 120, randomPrice, randomBuyout, seller.getName(), seller.getUuid());
+                manager.addAuctionItem("minecraft:raw_copper", List.of(stack), Instant.now(), 120, randomPrice, randomBuyout, seller.getName(), seller.getUuid());
             } catch (CommandSyntaxException e) {
                 throw new RuntimeException(e);
             }

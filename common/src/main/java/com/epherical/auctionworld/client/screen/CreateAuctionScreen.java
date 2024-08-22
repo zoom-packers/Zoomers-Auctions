@@ -27,6 +27,7 @@ public class CreateAuctionScreen extends AbstractContainerScreen<CreateAuctionMe
     //private EditBox bidIncrement;
     private EditBox startingBid;
     private EditBox buyoutPrice;
+    private EditBox currencyBox;
     private boolean daysActive = false;
     private boolean hoursActive = false;
 
@@ -85,6 +86,9 @@ public class CreateAuctionScreen extends AbstractContainerScreen<CreateAuctionMe
         buyoutPrice = addRenderableWidget(new EditBox(font, 129 + leftPos, 124 + topPos, 100, 20, Component.translatable("Buyout Price")));
         buyoutPrice.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
         buyoutPrice.setTooltip(Tooltip.create(Component.translatable("How much a user will have to pay to just straight up buy the item. Leave blank to not set one. (OPTIONAL)")));
+        currencyBox = addRenderableWidget(new EditBox(font, 129 + leftPos, 164 + topPos, 100, 20, Component.translatable("Currency")));
+        currencyBox.setFilter(s -> s.matches("[a-zA-Z]+") || s.isEmpty());
+        currencyBox.setTooltip(Tooltip.create(Component.translatable("What currency the auction will be in. (REQUIRED)")));
     }
 
 
@@ -156,8 +160,9 @@ public class CreateAuctionScreen extends AbstractContainerScreen<CreateAuctionMe
         if (!buyoutPrice.getValue().isEmpty()) {
             buyout = Integer.parseInt(buyoutPrice.getValue());
         }
+        String currency = currencyBox.getValue();
 
 
-        AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new CreateAuctionListing(time, start, buyout));
+        AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new CreateAuctionListing(time, start, buyout, currency));
     }
 }

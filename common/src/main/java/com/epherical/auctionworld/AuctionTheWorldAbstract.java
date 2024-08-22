@@ -50,7 +50,7 @@ public class AuctionTheWorldAbstract {
                     friendlyByteBuf.writeInt(createAuctionListing.timeInHours());
                     friendlyByteBuf.writeInt(createAuctionListing.startPrice());
                     friendlyByteBuf.writeInt(createAuctionListing.buyoutPrice());
-                }, friendlyByteBuf -> new CreateAuctionListing(friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readInt()),
+                }, friendlyByteBuf -> new CreateAuctionListing(friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readUtf()),
                 CreateAuctionListing::handle);
         networking.registerClientToServer(id++, UserSubmitBid.class, (bid, friendlyByteBuf) -> {
             friendlyByteBuf.writeUUID(bid.listing());

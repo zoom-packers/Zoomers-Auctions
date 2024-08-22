@@ -78,7 +78,7 @@ public class FlatPlayerStorage extends WorldBasedStorage implements PlayerStorag
             tag = readTagFromFile(resolve);
             return User.loadUser((CompoundTag) tag);
         } catch (IOException ignored) {}
-        return new User(player.getUUID(), player.getScoreboardName(), 0);
+        return new User(player.getUUID(), player.getScoreboardName());
     }
 
     @Override

@@ -167,8 +167,6 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             graphics.drawString(font, String.valueOf(item.getBuyoutPrice()), left + 328, top + 15, 0xFFFFFF, false);
 
 
-            ItemStack currency = new ItemStack(ConfigBasics.CURRENCY);
-
             PoseStack pose = graphics.pose();
             if (hovered) {
                 pose.pushPose();
@@ -178,7 +176,7 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
                     graphics.renderTooltip(font, tooltipFromItem, itemStack.getTooltipImage(), x, y);
                 } else if (x > left + 316 && x < left + 328) {
                     // this is for the currency tooltip
-                    graphics.renderTooltip(font, currency, x, y);
+                    graphics.renderTooltip(font, Component.translatable("Currency"), x, y);
                 } else if (x > left + 328 && y < top + 8) {
                     graphics.renderTooltip(font, Component.translatable("Current Bidding Price"), x, y);
                 } else if (x > left + 328 && y > top + 8 && y < top + 25) {
@@ -228,7 +226,6 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             pose.pushPose();
             pose.scale(0.5f, 0.5f, 0.5f);
             pose.translate(left + 308, top + 15, 0f);
-            graphics.renderFakeItem(currency, left + 328, top + 15);
             pose.scale(2f, 2f, 2f);
             graphics.pose().popPose();
         }

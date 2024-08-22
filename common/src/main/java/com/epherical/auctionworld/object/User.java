@@ -5,6 +5,7 @@ import com.epherical.auctionworld.util.ClaimedItemUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -17,13 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class User implements DelegatedContainer {
-
-    public static final int CURRENCY_SLOT = 0;
-
 
     private Page currentPage = new Page(1, 10);
 
@@ -33,27 +33,21 @@ public class User implements DelegatedContainer {
 
     private final UUID uuid;
     private String name;
-    private int currencyAmount;
     @Nullable
     private transient ServerPlayer player;
+    private Map<String, Integer> currencyMap = new HashMap<>();
 
     private NonNullList<ClaimedItem> claimedItems;
 
-    // We can take this last known currency item, and if the item changes in the config
-    // we can withdraw all the deposited currency from the block into some other block for
-    // the player to withdraw.
-    private Item lastKnownCurrencyItem;
-
-    public User(UUID uuid, String name, int currency) {
-        this(uuid, name, currency, NonNullList.create(), ConfigBasics.CURRENCY);
+    public User(UUID uuid, String name) {
+        this(uuid, name, NonNullList.create(), new HashMap<>());
     }
 
-    private User(UUID uuid, String name, int currency, NonNullList<ClaimedItem> items, Item lastKnownCurrencyItem) {
+    private User(UUID uuid, String name, NonNullList<ClaimedItem> items, Map<String, Integer> currencyMap) {
         this.uuid = uuid;
         this.name = name;
-        this.currencyAmount = currency;
         this.claimedItems = items;
-        this.lastKnownCurrencyItem = lastKnownCurrencyItem;
+        this.currencyMap = currencyMap;
     }
 
 
@@ -79,21 +73,30 @@ public class User implements DelegatedContainer {
     }
 
     public static User loadUser(CompoundTag tag) {
-        Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(tag.getString("lastKnownItem")));
-        int amount = tag.getInt("currencyAmount");
         String name = tag.getString("name");
-        UUID uuid = tag.getUUID("uuid"); // LMAO if the NILUUID gets saved, this will fail, because sure.
+        UUID uuid = tag.getUUID("uuid");
+        int currencies = tag.getInt("currencyCount");
+        var currencyMap = new HashMap<String, Integer>();
+        for (int i = 0; i < currencies; i++) {
+            String currency = tag.getString("currency_" + i + "_id");
+            int amount = tag.getInt("currency_" + i + "_amount");
+            currencyMap.put(currency, amount);
+        }
         NonNullList<ClaimedItem> items = NonNullList.create();
         loadAllItems(tag, items);
-        return new User(uuid, name, amount, items, item);
+        return new User(uuid, name, items, currencyMap);
     }
 
     public CompoundTag saveUser() {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("currencyAmount", currencyAmount);
-        tag.putString("lastKnownItem", BuiltInRegistries.ITEM.getKey(lastKnownCurrencyItem).toString());
         tag.putString("name", name);
         tag.putUUID("uuid", uuid);
+        tag.putInt("currencyCount", currencyMap.size());
+        for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
+            tag.putString("currency_" + entry.getKey() + "_id", entry.getKey());
+            tag.putInt("currency_" + entry.getKey() + "_amount", entry.getValue());
+        }
+
         saveAllItems(tag, claimedItems);
         return tag;
     }
@@ -147,9 +150,6 @@ public class User implements DelegatedContainer {
 
     @Override
     public ItemStack getItem(int pSlot) {
-        if (pSlot == 0) {
-            return new ItemStack(lastKnownCurrencyItem, currencyAmount);
-        }
         if (pSlot > 0) {
             pSlot -= 1;
         }
@@ -167,10 +167,6 @@ public class User implements DelegatedContainer {
 
     @Override
     public ItemStack removeItem(int pSlot, int pAmount) {
-        if (pSlot == 0)  {
-            currencyAmount -= pAmount;
-            return new ItemStack(lastKnownCurrencyItem, currencyAmount).split(pAmount);
-        }
         if (pSlot > 0) {
             pSlot -= 1;
         }
@@ -229,14 +225,14 @@ public class User implements DelegatedContainer {
         return Integer.MAX_VALUE;
     }
 
-    public boolean emptyCurrency(ServerPlayer player) {
-        int itemsToTake = Math.min(64, currencyAmount);
-        ItemStack currency = new ItemStack(lastKnownCurrencyItem);
-        currency.setCount(itemsToTake);
-        currencyAmount -= itemsToTake;
-        if (!player.addItem(currency)) {
-            // re-add. This will take the remaining itemstack and put it back into storage.
-            currencyAmount += currency.getCount();
+    public boolean emptyCurrency(ServerPlayer player, String currency) {
+        int itemsToTake = Math.min(64, this.currencyMap.get(currency));
+        var item = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(currency)));
+        item.setCount(itemsToTake);
+        this.currencyMap.put(currency, this.currencyMap.get(currency) + itemsToTake);
+        if (!player.addItem(item)) {
+            // re-add. This will take the remaining itemstack and put it back into storag
+            this.currencyMap.put(currency, this.currencyMap.get(currency) + item.getCount());
             return false;
         }
         return true;
@@ -247,7 +243,8 @@ public class User implements DelegatedContainer {
 
             int itemsInserted = item.getCount();
 
-            this.currencyAmount += itemsInserted;
+            var itemResourceLocation = BuiltInRegistries.ITEM.getKey(item.getItem());
+            this.currencyMap.put(itemResourceLocation.toString(), this.currencyMap.get(itemResourceLocation.toString()) + itemsInserted);
             item.shrink(itemsInserted);
             return itemsInserted;
         }
@@ -266,24 +263,20 @@ public class User implements DelegatedContainer {
         this.player = player;
     }
 
-    public boolean hasEnough(int needed)  {
-        return currencyAmount >= needed;
+    public boolean hasEnough(String currency, int needed)  {
+        return this.currencyMap.get(currency) >= needed;
     }
 
-    public int getCurrencyAmount() {
-        return currencyAmount;
-    }
-
-    public Item getLastKnownCurrencyItem() {
-        return lastKnownCurrencyItem;
+    public int getCurrencyAmount(String currency) {
+        return this.currencyMap.get(currency);
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public void takeCurrency(int amountToTake) {
-        this.currencyAmount -= amountToTake;
+    public void takeCurrency(String currency, int amountToTake) {
+        this.currencyMap.put(currency, this.currencyMap.get(currency) - amountToTake);
     }
 
     public NonNullList<ClaimedItem> getClaimedItems() {

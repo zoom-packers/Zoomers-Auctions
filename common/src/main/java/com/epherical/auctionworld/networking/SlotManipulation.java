@@ -46,7 +46,7 @@ public record SlotManipulation(int slot, Action action) {
         abstractInsertAll(player, blockEntity);
     }
 
-    private void abstractInsertAll(ServerPlayer player, User blockEntity) {
+    private void abstractInsertAll(ServerPlayer player, User blockEntity, String currency) {
         if (this.slot == User.CURRENCY_SLOT) {
             for (ItemStack item : player.getInventory().items) {
                 // todo; config option for items.diamond
@@ -57,15 +57,15 @@ public record SlotManipulation(int slot, Action action) {
         }
     }
 
-    private void removeSingleSlot(ServerPlayer player, User blockEntity) {
+    private void removeSingleSlot(ServerPlayer player, User blockEntity, String currency) {
         if (this.slot == User.CURRENCY_SLOT) {
-            blockEntity.emptyCurrency(player);
+            blockEntity.emptyCurrency(player, currency);
         }
     }
 
-    private void removeAllSlots(ServerPlayer player, User blockEntity) {
+    private void removeAllSlots(ServerPlayer player, User blockEntity, String currency) {
         if (this.slot == User.CURRENCY_SLOT) {
-            while (blockEntity.emptyCurrency(player));
+            while (blockEntity.emptyCurrency(player, currency));
         }
     }
 }

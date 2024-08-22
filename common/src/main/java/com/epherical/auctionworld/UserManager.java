@@ -18,7 +18,7 @@ public class UserManager {
 
     public UserManager(PlayerStorage playerStorage) {
         this.playerStorage = playerStorage;
-        User user = new User(Util.NIL_UUID, "Server", 0);
+        User user = new User(Util.NIL_UUID, "Server");
         user.setSaveData(false);
         players.put(Util.NIL_UUID, user);
     }
@@ -44,7 +44,7 @@ public class UserManager {
 
     public void loadPlayers() {
         this.players = playerStorage.loadUsers();
-        User user = new User(Util.NIL_UUID, "Server", 0);
+        User user = new User(Util.NIL_UUID, "Server");
         user.setSaveData(false);
         players.put(Util.NIL_UUID, user);
     }

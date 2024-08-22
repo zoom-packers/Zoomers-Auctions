@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public record CreateAuctionListing(int timeInHours, int startPrice, int buyoutPrice) {
+public record CreateAuctionListing(int timeInHours, int startPrice, int buyoutPrice, String currency) {
 
     public static void handle(CreateAuctionListing listing, AbstractNetworking.Context<?> context) {
 
@@ -35,7 +35,7 @@ public record CreateAuctionListing(int timeInHours, int startPrice, int buyoutPr
             }
         }
         AuctionManager auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager();
-        auctionManager.addAuctionItem(itemStacks, Instant.now(), Duration.ofHours(listing.timeInHours).getSeconds(),
+        auctionManager.addAuctionItem(listing.currency(), itemStacks, Instant.now(), Duration.ofHours(listing.timeInHours).getSeconds(),
                 listing.startPrice, listing.buyoutPrice, player.getScoreboardName(), player.getUUID());
         player.closeContainer();
     }

@@ -74,6 +74,7 @@ public class AuctionManager {
             }, 1L, 1L, TimeUnit.SECONDS);
         } else {
             this.auctions = storage.loadAuctionItems();
+            this.auctionList = new ArrayList<>(auctions.values());
             this.lastUpdated = Instant.now();
             future = service.scheduleAtFixedRate(() -> {
                 if (!auctions.isEmpty()) {
@@ -145,7 +146,7 @@ public class AuctionManager {
                 user.sendPlayerMessageIfOnline(Component.translatable("This auction has already expired"));
                 return;
             }
-            if (user.hasEnough(auctionItem.getBuyoutPrice())) {
+            if (user.hasEnough(auctionItem.getCurrency(), auctionItem.getBuyoutPrice())) {
                 auctionItem.finishAuctionWithBuyOut(user);
                 lastUpdated = Instant.now();
             } else {
@@ -189,7 +190,7 @@ public class AuctionManager {
                 }
             }
             auctionItem.addBid(bid);
-            auctionItem.addTime(ConfigBasics.addTimeAfterBid > -1 ? ConfigBasics.addTimeAfterBid : 0);
+            auctionItem.addTime(ConfigBasics.INSTANCE.addTimeAfterBid > -1 ? ConfigBasics.INSTANCE.addTimeAfterBid : 0);
             lastUpdated = Instant.now();
             if (!AuctionTheWorldAbstract.client && user.getPlayer() != null) {
                 // todo; update all players in the menu later
@@ -217,15 +218,15 @@ public class AuctionManager {
      * Add a new auction item to the list, checking for existing auctions with the same UUID. If they have the same UUID, call the method again
      * with another random UUID being generated.
      */
-    public void addAuctionItem(List<ItemStack> auctionItems, Instant auctionStarted, long timeLeft, int currentPrice, int buyoutPrice,
+    public void addAuctionItem(String currency, List<ItemStack> auctionItems, Instant auctionStarted, long timeLeft, int currentPrice, int buyoutPrice,
                                String seller, UUID sellerID) {
         UUID uuid = UUID.randomUUID();
         if (!auctions.containsKey(uuid)) {
-            AuctionItem item = new AuctionItem(uuid, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID, new ArrayDeque<>());
+            AuctionItem item = new AuctionItem(uuid, currency, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID, new ArrayDeque<>());
             auctions.put(uuid, item);
             auctionList.add(item);
         } else {
-            addAuctionItem(auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID);
+            addAuctionItem(currency, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID);
         }
         lastUpdated = Instant.now();
     }
