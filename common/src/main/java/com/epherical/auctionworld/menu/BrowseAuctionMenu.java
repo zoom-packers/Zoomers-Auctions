@@ -20,18 +20,6 @@ public class BrowseAuctionMenu extends AbstractContainerMenu {
     public BrowseAuctionMenu(int id, Inventory inventory, Container container) {
         super(Registry.BROWSE_AUCTION_MENU, id);
 
-        this.addSlot(new Slot(container, User.CURRENCY_SLOT, 362, 253) {
-            @Override
-            public boolean mayPlace(ItemStack pStack) {
-                return false;
-            }
-
-            @Override
-            public boolean mayPickup(Player p_40228_) {
-                return false;
-            }
-        });
-
         // 9 slots for auction winnings, expirations, commerce changes
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 3; ++col){

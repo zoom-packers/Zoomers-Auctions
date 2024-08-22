@@ -8,13 +8,8 @@ import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.menu.BrowseAuctionMenu;
 import com.epherical.auctionworld.networking.C2SPageChange;
 import com.epherical.auctionworld.networking.OpenCreateAuction;
-import com.epherical.auctionworld.networking.SlotManipulation;
-import com.epherical.auctionworld.object.Action;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.auctionworld.object.Page;
-import com.epherical.auctionworld.object.User;
-import com.epherical.epherolib.client.Icon;
-import com.epherical.epherolib.client.SmallIconButton;
 import com.epherical.epherolib.client.widgets.DiscordButton;
 import com.epherical.epherolib.client.widgets.PatreonButton;
 import com.epherical.epherolib.networking.AbstractNetworking;
@@ -23,7 +18,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -70,43 +64,6 @@ public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMe
             auctionScreenButton = this.addRenderableWidget(new PlainTextButton(leftPos + 81, topPos + 248, 80, 20, Component.translatable("Create Auction"), press -> {
                 AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction());
             }, font));
-
-            this.addRenderableWidget(SmallIconButton.buttonBuilder(Component.nullToEmpty("Insert Stack"), var1 -> {
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new SlotManipulation(User.CURRENCY_SLOT, Action.INSERT_SLOT));
-            }).pos(leftPos + 351, topPos + 252).setIcon(Icon.INCREMENT).tooltip(Tooltip.create(Component.nullToEmpty("Insert a stack."))).build());
-            this.addRenderableWidget(SmallIconButton.buttonBuilder(Component.nullToEmpty("Insert as much as possible"), var1 -> {
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new SlotManipulation(User.CURRENCY_SLOT, Action.INSERT_ALL));
-            }).pos(leftPos + 351, topPos + 262).setIcon(Icon.INCREMENT).tooltip(Tooltip.create(Component.nullToEmpty("Insert all available items"))).build());
-
-            // Right orange, remove items
-            this.addRenderableWidget(SmallIconButton.buttonBuilder(Component.nullToEmpty("Remove Stack"), var1 -> {
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new SlotManipulation(User.CURRENCY_SLOT, Action.REMOVE_STACK));
-            }).pos(leftPos + 380, topPos + 252).setIcon(Icon.DECREMENT).tooltip(Tooltip.create(Component.nullToEmpty("Remove a stack."))).build());
-            this.addRenderableWidget(SmallIconButton.buttonBuilder(Component.nullToEmpty("Remove as much as possible"), var1 -> {
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new SlotManipulation(User.CURRENCY_SLOT, Action.REMOVE_ALL));
-            }).pos(leftPos + 380, topPos + 262).setIcon(Icon.DECREMENT).tooltip(Tooltip.create(Component.nullToEmpty("Remove all available items"))).build());
-
-
-            this.addRenderableWidget(new DiscordButton(leftPos + 515, topPos + 5, press -> {
-                this.minecraft.setScreen(new ConfirmLinkScreen(b -> {
-                    if (b) {
-                        Util.getPlatform().openUri("https://discord.gg/a3cX6ttPJK");
-                    }
-
-                    this.minecraft.setScreen(this);
-                }, "https://discord.gg/a3cX6ttPJK", true));
-            }));
-            this.addRenderableWidget(new PatreonButton(leftPos + 515, topPos + 25, press -> {
-                this.minecraft.setScreen(new ConfirmLinkScreen(b -> {
-                    if (b) {
-                        Util.getPlatform().openUri("https://www.patreon.com/thethonk");
-                    }
-
-                    this.minecraft.setScreen(this);
-                }, "https://www.patreon.com/thethonk", true));
-            }));
-
-            // 83, 247
 
             time = new SortableButton<>(false, Comparator.comparing(AuctionItem::getTimeLeft), this.addRenderableWidget(Button.builder(Component.literal("Time -"),
                     button -> {

@@ -8,7 +8,6 @@ import com.epherical.auctionworld.networking.CreateAuctionListing;
 import com.epherical.auctionworld.networking.OpenCreateAuction;
 import com.epherical.auctionworld.networking.S2CAuctionUpdate;
 import com.epherical.auctionworld.networking.S2CSendAuctionListings;
-import com.epherical.auctionworld.networking.SlotManipulation;
 import com.epherical.auctionworld.networking.UserSubmitBid;
 import com.epherical.auctionworld.networking.UserSubmitBuyout;
 import com.epherical.auctionworld.object.Action;
@@ -50,6 +49,7 @@ public class AuctionTheWorldAbstract {
                     friendlyByteBuf.writeInt(createAuctionListing.timeInHours());
                     friendlyByteBuf.writeInt(createAuctionListing.startPrice());
                     friendlyByteBuf.writeInt(createAuctionListing.buyoutPrice());
+                    friendlyByteBuf.writeUtf(createAuctionListing.currency());
                 }, friendlyByteBuf -> new CreateAuctionListing(friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readUtf()),
                 CreateAuctionListing::handle);
         networking.registerClientToServer(id++, UserSubmitBid.class, (bid, friendlyByteBuf) -> {
@@ -59,10 +59,6 @@ public class AuctionTheWorldAbstract {
         networking.registerClientToServer(id++, UserSubmitBuyout.class, (userSubmitBuyout, friendlyByteBuf) -> {
             friendlyByteBuf.writeUUID(userSubmitBuyout.listing());
         }, friendlyByteBuf -> new UserSubmitBuyout(friendlyByteBuf.readUUID()), UserSubmitBuyout::handle);
-        networking.registerClientToServer(id++, SlotManipulation.class, (slotManipulation, buf) -> {
-            buf.writeVarInt(slotManipulation.slot());
-            buf.writeEnum(slotManipulation.action());
-        }, buf -> new SlotManipulation(buf.readVarInt(), buf.readEnum(Action.class)), SlotManipulation::handle);
         networking.registerServerToClient(id++, S2CSendAuctionListings.class, (s2CSendAuctionListings, friendlyByteBuf) -> {
             auctionManager.networkSerializeAuctions(friendlyByteBuf, s2CSendAuctionListings);
             friendlyByteBuf.writeInt(s2CSendAuctionListings.maxPages());

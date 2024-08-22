@@ -150,38 +150,12 @@ public class User implements DelegatedContainer {
 
     @Override
     public ItemStack getItem(int pSlot) {
-        if (pSlot > 0) {
-            pSlot -= 1;
-        }
-
-        if (pSlot < claimedItems.size()) {
-            if (claimedItems.get(pSlot).itemStack().isEmpty()) {
-                claimedItems.remove(pSlot);
-                return ItemStack.EMPTY;
-            }
-            return claimedItems.get(pSlot).itemStack();
-        } else {
-            return ItemStack.EMPTY;
-        }
+        return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack removeItem(int pSlot, int pAmount) {
-        if (pSlot > 0) {
-            pSlot -= 1;
-        }
-
-
-        ItemStack itemStack = ClaimedItemUtil.removeItem(claimedItems, pSlot, pAmount);
-        if (!itemStack.isEmpty()) {
-            this.setChanged();
-            if (claimedItems.get(pSlot).itemStack().isEmpty()) {
-                claimedItems.remove(pSlot);
-            }
-            return itemStack;
-        }
-        claimedItems.remove(pSlot);
-        return itemStack;
+        return ItemStack.EMPTY;
     }
 
     @Override
