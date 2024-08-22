@@ -1,5 +1,6 @@
 package com.epherical.auctionworld;
 
+import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
 import com.epherical.auctionworld.registry.Registry;
@@ -10,7 +11,6 @@ import com.epherical.auctionworld.networking.S2CAuctionUpdate;
 import com.epherical.auctionworld.networking.S2CSendAuctionListings;
 import com.epherical.auctionworld.networking.UserSubmitBid;
 import com.epherical.auctionworld.networking.UserSubmitBuyout;
-import com.epherical.auctionworld.object.Action;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.epherolib.networking.AbstractNetworking;
 import net.minecraft.resources.ResourceLocation;
@@ -42,8 +42,10 @@ public class AuctionTheWorldAbstract {
 
         int id = 0;
         networking.registerClientToServer(id++, OpenCreateAuction.class,
-                (createAuctionClick, friendlyByteBuf) -> {},
-                friendlyByteBuf -> new OpenCreateAuction(), OpenCreateAuction::handle);
+                (createAuctionClick, friendlyByteBuf) -> {
+                    friendlyByteBuf.writeInt(createAuctionClick.currentScreen().ordinal());
+                },
+                friendlyByteBuf -> new OpenCreateAuction((AuctionMenuWidget.CurrentScreen.values()[friendlyByteBuf.readInt()])), OpenCreateAuction::handle);
         networking.registerClientToServer(id++, CreateAuctionListing.class,
                 (createAuctionListing, friendlyByteBuf) -> {
                     friendlyByteBuf.writeInt(createAuctionListing.timeInHours());

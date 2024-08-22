@@ -4,36 +4,28 @@ import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.client.AModClient;
 import com.epherical.auctionworld.client.AuctionListWidget;
 import com.epherical.auctionworld.client.SortableButton;
+import com.epherical.auctionworld.client.widgets.AuctionMenuBase;
+import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.menu.BrowseAuctionMenu;
 import com.epherical.auctionworld.networking.C2SPageChange;
-import com.epherical.auctionworld.networking.OpenCreateAuction;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.auctionworld.object.Page;
-import com.epherical.epherolib.client.widgets.DiscordButton;
-import com.epherical.epherolib.client.widgets.PatreonButton;
 import com.epherical.epherolib.networking.AbstractNetworking;
-import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.PlainTextButton;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.Comparator;
 
-public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMenu> {
-    private static final ResourceLocation AUCTION_LOCATION = Registry.id("textures/gui/container/auction.png");
+public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
 
 
     private Page page = new Page(1, 10);
-
-    private Button auctionScreenButton;
-    //private Button browse;
 
     private SortableButton<AuctionItem> item;
     private SortableButton<AuctionItem> time;
@@ -50,9 +42,12 @@ public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMe
     }
 
     @Override
+    public void addRenderableWidgetExternal(AbstractWidget widget) {
+        this.addRenderableWidget(widget);
+    }
+
+    @Override
     protected void init() {
-        imageWidth = 512;
-        imageHeight = 480;
         super.init();
         list = new AuctionListWidget(minecraft, this.width + 121, this.height, topPos + 45, topPos + 245, 25, this);
         list.setRenderBackground(false);
@@ -61,9 +56,6 @@ public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMe
         addWidget(list);
 
         if (leftPos >= 0 && topPos >= 0) {
-            auctionScreenButton = this.addRenderableWidget(new PlainTextButton(leftPos + 81, topPos + 248, 80, 20, Component.translatable("Create Auction"), press -> {
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction());
-            }, font));
 
             time = new SortableButton<>(false, Comparator.comparing(AuctionItem::getTimeLeft), this.addRenderableWidget(Button.builder(Component.literal("Time -"),
                     button -> {
@@ -149,25 +141,14 @@ public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMe
 
     @Override
     public void render(GuiGraphics graphics, int x, int y, float delta) {
+        super.render(graphics, x, y, delta);
         if (leftPos >= 0 && topPos >= 0) {
-            this.renderBackground(graphics);
-            super.render(graphics, x, y, delta);
             list.render(graphics, x, y, delta);
             this.renderTooltip(graphics, x, y + 1);
             if (tooltipEntry != null) {
                 getTooltipEntry().render(font, graphics, x, y, delta);
             }
-        } else {
-            this.renderBackground(graphics);
-            graphics.drawString(font, "Decrease your GUI scale to see the entire menu!",  50, 60, 0xFFFFFF);
         }
-    }
-
-    @Override
-    protected void renderBg(GuiGraphics graphics, float delta, int x, int y) {
-        int left = this.leftPos;
-        int center = (this.height - this.imageHeight) / 2;
-        graphics.blit(AUCTION_LOCATION, left, center, 0, 0, this.imageWidth, this.imageHeight, 512, 512);
     }
 
     public void setTooltipEntry(ScreenRender tooltipEntry) {
@@ -178,19 +159,6 @@ public class BrowseAuctionScreen extends AbstractContainerScreen<BrowseAuctionMe
         return tooltipEntry;
     }
 
-    @Override
-    protected void renderLabels(GuiGraphics graphics, int x, int y) {
-        // todo; filtering function
-        // AuctionFilterManager.Node<Item> tree = TagListener.manager.getTree();
-        // tree.beginRenderText(graphics, this.font, this.titleLabelX, this.titleLabelY, 1);
-        /*seller.sort(auctionItems);
-        bid.sort(auctionItems);
-        item.sort(auctionItems);
-        time.sort(auctionItems);*/
-        //graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
-        //graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
-
-    }
 
     public interface ScreenRender {
         void render(Font font, GuiGraphics graphics, int mouseX, int mouseY, float delta);

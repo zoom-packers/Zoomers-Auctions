@@ -2,8 +2,7 @@ package com.epherical.auctionworld.registry;
 
 import com.epherical.auctionworld.Constants;
 import com.epherical.auctionworld.block.AuctionBlock;
-import com.epherical.auctionworld.menu.BrowseAuctionMenu;
-import com.epherical.auctionworld.menu.CreateAuctionMenu;
+import com.epherical.auctionworld.menu.*;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -24,6 +23,9 @@ public class Registry {
 
     public static final MenuType<BrowseAuctionMenu> BROWSE_AUCTION_MENU = new MenuType<>(BrowseAuctionMenu::new, FeatureFlags.VANILLA_SET);
     public static final MenuType<CreateAuctionMenu> CREATE_AUCTION_MENU = new MenuType<>(CreateAuctionMenu::new, FeatureFlags.VANILLA_SET);
+    public static final MenuType<WalletManagementMenu> WALLET_MANAGEMENT_MENU = new MenuType<>(WalletManagementMenu::new, FeatureFlags.VANILLA_SET);
+    public static final MenuType<AuctionOwnerMenu> AUCTION_OWNER_MENU = new MenuType<>(AuctionOwnerMenu::new, FeatureFlags.VANILLA_SET);
+    public static final MenuType<AuctionParticipationMenu> AUCTION_PARTICIPATION_MENU = new MenuType<>(AuctionParticipationMenu::new, FeatureFlags.VANILLA_SET);
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Constants.MOD_ID, Registries.BLOCK);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Constants.MOD_ID, Registries.ITEM);
@@ -33,6 +35,9 @@ public class Registry {
     public static final RegistrySupplier<Item> AUCTION_HOUSE_ITEM_SUPPLIER = ITEMS.register(new ResourceLocation(Constants.MOD_ID, "auction_house"), () -> new ItemNameBlockItem(AUCTION_HOUSE_SUPPLIER.get(), new Item.Properties()));
     public static final RegistrySupplier<MenuType<BrowseAuctionMenu>> BROWSE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "browse_auction_menu"), () -> BROWSE_AUCTION_MENU);
     public static final RegistrySupplier<MenuType<CreateAuctionMenu>> CREATE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "create_auction_menu"), () -> CREATE_AUCTION_MENU);
+    public static final RegistrySupplier<MenuType<WalletManagementMenu>> WALLET_MANAGEMENT_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "wallet_management_menu"), () -> WALLET_MANAGEMENT_MENU);
+    public static final RegistrySupplier<MenuType<AuctionOwnerMenu>> AUCTION_OWNER_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "auction_owner_menu"), () -> AUCTION_OWNER_MENU);
+    public static final RegistrySupplier<MenuType<AuctionParticipationMenu>> AUCTION_PARTICIPATION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "auction_participation_menu"), () -> AUCTION_PARTICIPATION_MENU);
 
     public static void bootstrap() {
         BLOCKS.register();

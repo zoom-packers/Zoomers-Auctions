@@ -2,8 +2,7 @@ package com.epherical.auctionworld.forge.client;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.Constants;
-import com.epherical.auctionworld.client.screen.BrowseAuctionScreen;
-import com.epherical.auctionworld.client.screen.CreateAuctionScreen;
+import com.epherical.auctionworld.client.screen.*;
 import com.epherical.auctionworld.client.tooltip.BiddingTooltipClientComponent;
 import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.object.AuctionItem;
@@ -21,6 +20,9 @@ public class AModClient {
 
         MenuScreens.register(Registry.BROWSE_AUCTION_MENU, BrowseAuctionScreen::new);
         MenuScreens.register(Registry.CREATE_AUCTION_MENU, CreateAuctionScreen::new);
+        MenuScreens.register(Registry.WALLET_MANAGEMENT_MENU, WalletManagementScreen::new);
+        MenuScreens.register(Registry.AUCTION_PARTICIPATION_MENU, AuctionParticipationScreen::new);
+        MenuScreens.register(Registry.AUCTION_OWNER_MENU, AuctionOwnerScreen::new);
 
         AuctionTheWorldAbstract.auctionListeners.add(() -> {
             Minecraft minecraft = Minecraft.getInstance();
