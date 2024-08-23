@@ -2,6 +2,8 @@ package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.client.widgets.AuctionMenuBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -47,10 +49,17 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
         if (leftPos >= 0 && topPos >= 0) {
             this.renderBackground(graphics);
             super.render(graphics, x, y, delta);
+            this.drawTitle(graphics, leftPos + 134, topPos + 10);
         } else {
             this.renderBackground(graphics);
             graphics.drawString(font, "Decrease your GUI scale to see the entire menu!",  50, 60, 0xFFFFFF);
         }
+    }
+
+    private void drawTitle(GuiGraphics graphics, int x, int y) {
+        Font font = Minecraft.getInstance().font;
+        var formattedTitle = title.getString().toUpperCase().charAt(0) + title.getString().substring(1).toLowerCase().replace("_", " ");
+        graphics.drawString(font, formattedTitle, x, y, 0xFFFFFF);
     }
 
 }

@@ -21,8 +21,6 @@ public class AuctionMenuWidget {
     private Button auctionOwner;
     private Button titleButton;
 
-    private CurrentScreen currentScreen = CurrentScreen.CREATE_AUCTION;
-
 
     public AuctionMenuWidget(Inventory inventory, Component title) {
         this.inventory = inventory;
@@ -38,17 +36,17 @@ public class AuctionMenuWidget {
             AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.BROWSE_AUCTIONS));
         });
 
-        walletManagement = createButton(screen, leftPos, topPos, 2, "Wallet Management", "Manage your wallet", button -> {
+        walletManagement = createButton(screen, leftPos, topPos, 2, "Wallet", "See your wallet", button -> {
             AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.WALLET_MANAGEMENT));
         });
 
-        auctionParticipation = createButton(screen, leftPos, topPos, 3, "Auction Participation", "Participate in auctions", button -> {
-            AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.AUCTION_PARTICIAPTION));
-        });
-
-        auctionOwner = createButton(screen, leftPos, topPos, 4, "Auction Owner", "Manage your auctions", button -> {
-            AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.AUCTION_OWNER));
-        });
+//        auctionParticipation = createButton(screen, leftPos, topPos, 3, "Auction Participation", "Participate in auctions", button -> {
+//            AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.AUCTION_PARTICIAPTION));
+//        });
+//
+//        auctionOwner = createButton(screen, leftPos, topPos, 4, "Auction Owner", "Manage your auctions", button -> {
+//            AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(CurrentScreen.AUCTION_OWNER));
+//        });
     }
 
     private Button createButton(AuctionScreen screen, int leftPos, int topPos, int index, String text, String tooltip, Button.OnPress onClick) {

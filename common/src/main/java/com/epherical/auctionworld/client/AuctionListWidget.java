@@ -145,6 +145,9 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             //left -= 246;
             Font font = AuctionListWidget.this.minecraft.font;
             ItemStack itemStack = item.getAuctionItems().get(0);
+            var itemCurrency = item.getCurrency();
+            var itemCurrencyItem = ConfigBasics.getCurrencyItem(itemCurrency);
+            ItemStack currencyStack = new ItemStack(itemCurrencyItem, 1);
             graphics.renderFakeItem(itemStack, left, top + 4);
             graphics.drawString(font, item.formatTimeLeft(), left + 120, top + 8, 0xFFFFFF, false);
 
@@ -163,8 +166,9 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             }
 
             graphics.drawString(font, item.getSeller(), left + 220, top + 8, 0xFFFFFF, false);
-            graphics.drawString(font, String.valueOf(item.getCurrentBidPrice()), left + 328, top + 2, 0xFFFFFF, false);
-            graphics.drawString(font, String.valueOf(item.getBuyoutPrice()), left + 328, top + 15, 0xFFFFFF, false);
+            graphics.renderFakeItem(currencyStack, left + 316, top + 6);
+            graphics.drawString(font, String.valueOf(item.getCurrentBidPrice()), left + 334, top + 2, 0xFFFFFF, false);
+            graphics.drawString(font, String.valueOf(item.getBuyoutPrice()), left + 334, top + 15, 0xFFFFFF, false);
 
 
             PoseStack pose = graphics.pose();

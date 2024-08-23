@@ -27,4 +27,7 @@ public class ConfigBasics {
         return BuiltInRegistries.ITEM.get(resourceLocation);
     }
 
+    public static String getCurrencyForItem(Item item) {
+        return BuiltInRegistries.ITEM.getKey(item).toString();
+    }
 }

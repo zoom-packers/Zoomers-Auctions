@@ -74,7 +74,7 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
                                         seller.setActivated(false);
                                         bid.setActivated(false);
                                     })
-                            .pos(leftPos + 125, topPos + 26).width(117)
+                            .pos(leftPos + 127, topPos + 26).width(115)
                             .build()));
             seller = new SortableButton<>(false, Comparator.comparing(AuctionItem::getSeller), this.addRenderableWidget(Button.builder(Component.literal("Seller -"),
                             button -> {

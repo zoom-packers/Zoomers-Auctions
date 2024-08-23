@@ -92,9 +92,11 @@ public class User implements DelegatedContainer {
         tag.putString("name", name);
         tag.putUUID("uuid", uuid);
         tag.putInt("currencyCount", currencyMap.size());
+        var index = 0;
         for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
-            tag.putString("currency_" + entry.getKey() + "_id", entry.getKey());
-            tag.putInt("currency_" + entry.getKey() + "_amount", entry.getValue());
+            tag.putString("currency_" + index + "_id", entry.getKey());
+            tag.putInt("currency_" + index + "_amount", entry.getValue());
+            index++;
         }
 
         saveAllItems(tag, claimedItems);
@@ -218,6 +220,9 @@ public class User implements DelegatedContainer {
             int itemsInserted = item.getCount();
 
             var itemResourceLocation = BuiltInRegistries.ITEM.getKey(item.getItem());
+            if (!this.currencyMap.containsKey(itemResourceLocation.toString())) {
+                this.currencyMap.put(itemResourceLocation.toString(), 0);
+            }
             this.currencyMap.put(itemResourceLocation.toString(), this.currencyMap.get(itemResourceLocation.toString()) + itemsInserted);
             item.shrink(itemsInserted);
             return itemsInserted;
@@ -242,6 +247,9 @@ public class User implements DelegatedContainer {
     }
 
     public int getCurrencyAmount(String currency) {
+        if (!this.currencyMap.containsKey(currency)) {
+            this.currencyMap.put(currency, 0);
+        }
         return this.currencyMap.get(currency);
     }
 
@@ -272,5 +280,10 @@ public class User implements DelegatedContainer {
 
     public boolean canBeSaved() {
         return saveData;
+    }
+
+    public int getCurrencyInAuctions(String currency) {
+        // TODO: Implement this, gather all the currency in auctions
+        return 0;
     }
 }

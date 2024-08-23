@@ -1,6 +1,7 @@
 package com.epherical.auctionworld;
 
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
+import com.epherical.auctionworld.config.ConfigBasics;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
 import com.epherical.auctionworld.registry.Registry;
@@ -13,6 +14,7 @@ import com.epherical.auctionworld.networking.UserSubmitBid;
 import com.epherical.auctionworld.networking.UserSubmitBuyout;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.epherolib.networking.AbstractNetworking;
+import elocindev.necronomicon.api.config.v1.NecConfigAPI;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ public class AuctionTheWorldAbstract {
 
     public AuctionTheWorldAbstract(AbstractNetworking net) {
         mod = this;
+        NecConfigAPI.registerConfig(ConfigBasics.class);
         networking = net;
         Registry.bootstrap();
 

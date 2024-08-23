@@ -20,18 +20,6 @@ public class BrowseAuctionMenu extends AbstractContainerMenu {
     public BrowseAuctionMenu(int id, Inventory inventory, Container container) {
         super(Registry.BROWSE_AUCTION_MENU, id);
 
-        // 9 slots for auction winnings, expirations, commerce changes
-        for (int row = 0; row < 3; ++row) {
-            for (int col = 0; col < 3; ++col){
-                this.addSlot(new Slot(container, 1 + (col + row * 3), 13 + col * 18, 256 + row * 18) {
-                    @Override
-                    public boolean mayPlace(ItemStack pStack) {
-                        return false;
-                    }
-                });
-            }
-        }
-
         // player inventory
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
@@ -63,27 +51,7 @@ public class BrowseAuctionMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int slotP) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(slotP);
-        if (slot != null && slot.hasItem()) {
-            ItemStack item = slot.getItem();
-            itemstack = item.copy();
-            if (slotP < 9) {
-                if (!this.moveItemStackTo(item, 9, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(item, 0, 9, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (item.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-        }
-
-        return itemstack;
+        return ItemStack.EMPTY;
     }
 
     @Override
