@@ -105,6 +105,7 @@ public class AuctionBlock extends Block {
             User user = instance.getUserManager().getUserByID(player.getUUID());
             if (user.getLastReceivedAuctions() == null || user.getLastReceivedAuctions().isBefore(manager.getLastUpdated())) {
                 instance.getNetworking().sendToClient(new S2CSendAuctionListings(manager.getAuctionItemsByPage(user.getCurrentPage()), manager.getMaxPages(user.getCurrentPage())), (ServerPlayer) player);
+                user.sendWalletData();
                 user.setLastReceivedAuctions(Instant.now());
             }
             user.setCurrentPage(new Page(1, 10));
