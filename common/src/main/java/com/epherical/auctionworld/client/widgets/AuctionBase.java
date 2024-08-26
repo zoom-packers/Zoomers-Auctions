@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class AuctionMenuBase {
+public class AuctionBase {
     private Inventory inventory;
     private Component title;
 
@@ -18,7 +18,7 @@ public class AuctionMenuBase {
 
     private static final ResourceLocation AUCTION_LOCATION = Registry.id("textures/gui/container/auction.png");
 
-    public AuctionMenuBase(Inventory inventory, Component title) {
+    public AuctionBase(Inventory inventory, Component title) {
         this.inventory = inventory;
         this.title = title;
 

@@ -4,11 +4,10 @@ import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.client.AModClient;
 import com.epherical.auctionworld.client.AuctionListWidget;
 import com.epherical.auctionworld.client.SortableButton;
-import com.epherical.auctionworld.client.widgets.AuctionMenuBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
-import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.menu.BrowseAuctionMenu;
 import com.epherical.auctionworld.networking.C2SPageChange;
+import com.epherical.auctionworld.networking.OpenCreateAuction;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.auctionworld.object.Page;
 import com.epherical.epherolib.networking.AbstractNetworking;
@@ -17,7 +16,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.Comparator;
@@ -32,6 +30,7 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
     private SortableButton<AuctionItem> seller;
     private SortableButton<AuctionItem> highestBidder;
     private SortableButton<AuctionItem> bid;
+    private Button createAuctionButton;
 
     private AuctionListWidget list;
 
@@ -57,6 +56,14 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
         addWidget(list);
 
         if (leftPos >= 0 && topPos >= 0) {
+
+            createAuctionButton = Button.builder(Component.literal("Create Auction"), button1 -> {
+                AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(AuctionMenuWidget.CurrentScreen.CREATE_AUCTION));
+                    })
+                    .pos(leftPos + 387, topPos + 4)
+                    .size(120, 20)
+                    .build();
+            addRenderableWidget(createAuctionButton);
 
             item = new SortableButton<>(false, Comparator.comparing(auctionItem -> auctionItem.getAuctionItems().get(0).getHoverName().getString()),
                     this.addRenderableWidget(Button.builder(Component.literal("Item -"),
@@ -122,7 +129,7 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
                                 seller.setActivated(false);
                             })
                     .pos(leftPos + 441, topPos + 26)
-                    .width(67)
+                    .width(66)
                     .build()));
             this.list.addEntries(AuctionTheWorldAbstract.getInstance().getAuctionManager().getAuctions());
 

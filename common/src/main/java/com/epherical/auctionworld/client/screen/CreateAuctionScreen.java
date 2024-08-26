@@ -1,10 +1,12 @@
 package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.menu.CreateAuctionMenu;
 import com.epherical.auctionworld.menu.slot.SelectableSlot;
 import com.epherical.auctionworld.networking.CreateAuctionListing;
+import com.epherical.auctionworld.networking.OpenCreateAuction;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.network.chat.CommonComponents;
@@ -22,6 +24,7 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
     //private EditBox bidIncrement;
     private EditBox startingBid;
     private EditBox buyoutPrice;
+    private Button browseAuctions;
     private String currencySelected = "";
     private char timeUnit = ' ';
 
@@ -67,6 +70,14 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
     @Override
     protected void init() {
         super.init();
+        browseAuctions = Button.builder(Component.literal("Browse Auctions"), button1 -> {
+                    AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new OpenCreateAuction(AuctionMenuWidget.CurrentScreen.BROWSE_AUCTIONS));
+                })
+                .pos(leftPos + 387, topPos + 4)
+                .size(120, 20)
+                .build();
+        addRenderableWidget(browseAuctions);
+
         var currencies = Config.INSTANCE.currencies;
         var aliases = Config.INSTANCE.currencyAliases;
         var options = new ArrayList<SelectionButton>();
@@ -78,18 +89,18 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
             }));
         }
 
-        timeSelection = drawNumericalField(leftPos + 134, topPos + 40, 188, 20);
+        timeSelection = drawNumericalField(leftPos + 10, topPos + 40, 310, 20);
         drawMultiOption(leftPos + 322, topPos + 40, 180, 20, List.of(
                 new SelectionButton("m", "Minutes", button -> timeUnit = 'm'),
                 new SelectionButton("h", "Hours", button -> timeUnit = 'h'),
                 new SelectionButton("d", "Days", button -> timeUnit = 'd')
         ));
 
-        startingBid = drawNumericalField(leftPos + 134, topPos + 80, 368, 20);
-        buyoutPrice = drawNumericalField(leftPos + 134, topPos + 120, 368, 20);
-        drawMultiOption(leftPos + 134, topPos + 160, 368, 20, options);
+        startingBid = drawNumericalField(leftPos + 10, topPos + 80, 492, 20);
+        buyoutPrice = drawNumericalField(leftPos + 10, topPos + 120, 492, 20);
+        drawMultiOption(leftPos + 10, topPos + 160, 492, 20, options);
 
-        createAuction = drawButton(leftPos + 134, topPos + 220, 368, 20, CommonComponents.GUI_DONE, button -> {
+        createAuction = drawButton(leftPos + 10, topPos + 220, 492, 20, CommonComponents.GUI_DONE, button -> {
             validateAndSendToServer();
         });
     }
@@ -117,10 +128,10 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
                 Component.translatable("Currency - Select Currency") :
                 Component.translatable("Currency - " + Config.getAlias(currencySelected));
 
-        drawString(graphics, leftPos + 134, topPos + 30, timeLabel);
-        drawString(graphics, leftPos + 134, topPos + 70, startingBidLabel);
-        drawString(graphics, leftPos + 134, topPos + 110, buyoutPriceLabel);
-        drawString(graphics, leftPos + 134, topPos + 150, currencyLabel);
+        drawString(graphics, leftPos + 10, topPos + 30, timeLabel);
+        drawString(graphics, leftPos + 10, topPos + 70, startingBidLabel);
+        drawString(graphics, leftPos + 10, topPos + 110, buyoutPriceLabel);
+        drawString(graphics, leftPos + 10, topPos + 150, currencyLabel);
 
 
         this.renderTooltip(graphics, x, y);

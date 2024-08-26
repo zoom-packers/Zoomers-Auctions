@@ -1,6 +1,6 @@
 package com.epherical.auctionworld.client.screen;
 
-import com.epherical.auctionworld.client.widgets.AuctionMenuBase;
+import com.epherical.auctionworld.client.widgets.AuctionBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,12 +13,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class AuctionScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
-    protected AuctionMenuBase auctionMenuBase;
+    protected AuctionBase auctionMenuBase;
     protected AuctionMenuWidget auctionMenuWidget;
 
     public AuctionScreen(T abstractContainerMenu, Inventory inventory, Component component) {
         super(abstractContainerMenu, inventory, component);
-        auctionMenuBase = new AuctionMenuBase(inventory, title);
+        auctionMenuBase = new AuctionBase(inventory, title);
         auctionMenuWidget = new AuctionMenuWidget(inventory, title);
         imageWidth = 512;
         imageHeight = 480;
