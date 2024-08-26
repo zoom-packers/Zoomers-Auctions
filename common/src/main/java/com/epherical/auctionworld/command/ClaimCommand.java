@@ -69,7 +69,7 @@ public class ClaimCommand {
                 int randomPrice = random.nextInt(100);
                 int randomBuyout = randomPrice + 30;
                 User seller = mod.getUserManager().getUserByID(Util.NIL_UUID);
-                manager.addAuctionItem("minecraft:raw_copper", List.of(stack), Instant.now(), 120, randomPrice, randomBuyout, seller.getName(), seller.getUuid());
+                manager.addAuctionItem(Config.INSTANCE.currencies[0], List.of(stack), Instant.now(), 120, randomPrice, randomBuyout, seller.getName(), seller.getUuid());
             } catch (CommandSyntaxException e) {
                 throw new RuntimeException(e);
             }
@@ -88,9 +88,9 @@ public class ClaimCommand {
         }
         for (ClaimedItem item : items) {
             giveItemToPlayer(context, item.itemStack());
-            user.removeClaimedItems(item);
             player.sendSystemMessage(Component.translatable("Claiming %s from auctions", item.itemStack().getHoverName()));
         }
+        items.clear();
         return 1;
     }
 

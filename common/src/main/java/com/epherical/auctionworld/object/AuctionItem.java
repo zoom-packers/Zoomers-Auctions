@@ -287,7 +287,10 @@ public class AuctionItem implements TooltipComponent {
     public void networkSerialize(FriendlyByteBuf buf) {
         buf.writeUUID(auctionID);
         buf.writeUtf(currency);
-        buf.writeItem(auctionItems.get(0));
+        buf.writeInt(auctionItems.size());
+        for (ItemStack item : auctionItems) {
+            buf.writeItem(item);
+        }
         buf.writeInstant(auctionStarted);
         buf.writeLong(timeLeft);
         buf.writeInt(getCurrentBidPrice());
@@ -305,7 +308,11 @@ public class AuctionItem implements TooltipComponent {
     public static AuctionItem networkDeserialize(FriendlyByteBuf buf) {
         var auctionId = buf.readUUID();
         var currency = buf.readUtf();
-        var item = buf.readItem();
+        var itemCount = buf.readInt();
+        List<ItemStack> items = new ArrayList<>();
+        for (int i = 0; i < itemCount; i++) {
+            items.add(buf.readItem());
+        }
         var auctionStarted = buf.readInstant();
         var timeLeft = buf.readLong();
         var currentPrice = buf.readInt();
@@ -318,9 +325,8 @@ public class AuctionItem implements TooltipComponent {
         for (int i = 0; i < bidSize; i++) {
             bids.push(new Bid(buf.readUUID(), buf.readInt()));
         }
-        AuctionItem auctionItem = new AuctionItem(auctionId, currency, List.of(item), auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerId, bids);
+        AuctionItem auctionItem = new AuctionItem(auctionId, currency, items, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerId, bids);
         auctionItem.setCountOfItems(countOfItems);
-        auctionItem.auctionItems.get(0).setCount(auctionItem.getCountOfItems());
         return auctionItem;
     }
 

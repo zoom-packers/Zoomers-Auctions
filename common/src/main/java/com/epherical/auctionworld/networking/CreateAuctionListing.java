@@ -5,6 +5,7 @@ import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.menu.CreateAuctionMenu;
 import com.epherical.auctionworld.menu.slot.SelectableSlot;
 import com.epherical.epherolib.networking.AbstractNetworking;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -33,6 +34,10 @@ public record CreateAuctionListing(int timeInMinutes, int startPrice, int buyout
                     }
                 }
             }
+        }
+        if (itemStacks.isEmpty()) {
+            player.sendSystemMessage(Component.literal("You must have at least one item in the auction listing."));
+            return;
         }
         AuctionManager auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager();
         auctionManager.addAuctionItem(listing.currency(), itemStacks, Instant.now(), Duration.ofMinutes(listing.timeInMinutes).getSeconds(),
