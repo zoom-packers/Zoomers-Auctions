@@ -47,7 +47,7 @@ public class AuctionBlock extends Block {
     public static final VoxelShape SHAPE_NORTH = Shapes.or(Block.box(0.0D, 12.0D, 3.0D, 16.0D, 16.0D, 16D), SHAPE_COMMON);
     public static final VoxelShape SHAPE_EAST = Shapes.or(Block.box(0.0D, 12.0D, 0.0D, 13D, 16.0D, 16.0D), SHAPE_COMMON);
     public static final VoxelShape SHAPE_SOUTH = Shapes.or(Block.box(0.0D, 12.0D, 0.0D, 16.0D, 16.0D, 13.0D), SHAPE_COMMON);
-    private static final Component CONTAINER_TITLE = Component.translatable("auctionworld.container.auction");
+    private static final Component CONTAINER_TITLE = Component.translatable("BROWSE_AUCTIONS");
 
     public AuctionBlock(Properties properties) {
         super(properties);
@@ -86,7 +86,7 @@ public class AuctionBlock extends Block {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
-            player.openMenu(new SimpleMenuProvider((id, inventory, player1) -> new BrowseAuctionMenu(id, inventory), Component.translatable("BROWSE_AUCTIONS")));
+            player.openMenu(state.getMenuProvider(level, pos));
             //player.awardStat(Stats.);
             return InteractionResult.CONSUME;
         }

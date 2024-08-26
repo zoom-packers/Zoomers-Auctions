@@ -164,12 +164,16 @@ public class AuctionItem implements TooltipComponent {
     private void rewardBackOtherPlayers(User winner) {
         List<User> awardedUsers = new ArrayList<>();
         awardedUsers.add(winner);
-        for (Bid bid : bidStack) {
+        var reverseBidStack = new ArrayList<Bid>();
+        reverseBidStack.addAll(bidStack);
+        Collections.reverse(reverseBidStack);
+        for (Bid bid : reverseBidStack) {
             User user = AuctionTheWorldAbstract.userManager.getUserByID(bid.user());
             if (awardedUsers.contains(user)) {
                 continue;
             }
             user.addCurrency(currency, bid.bidAmount());
+            user.sendWalletData();
             var player = user.getPlayer();
             if (player != null) {
                 user.sendPlayerMessageIfOnline(Component.literal("You have been refunded " + bid.bidAmount() + " " + Config.getAlias(currency) + " for the auction you bid on."));
@@ -181,6 +185,7 @@ public class AuctionItem implements TooltipComponent {
     private void rewardAuctionSeller(int reward) {
         var seller = AuctionTheWorldAbstract.userManager.getUserByID(sellerID);
         seller.addCurrency(currency, reward);
+        seller.sendWalletData();
         var player = seller.getPlayer();
         if (player != null) {
             seller.sendPlayerMessageIfOnline(Component.literal("Your auction has ended and you have been rewarded with " + reward + " " + Config.getAlias(currency)));
@@ -301,6 +306,7 @@ public class AuctionItem implements TooltipComponent {
         buf.writeInt(bidStack.size());
         for (int i = 0; i < bidStack.size(); i++) {
             buf.writeUUID(bidStack.get(i).user());
+            buf.writeUtf(bidStack.get(i).username());
             buf.writeInt(bidStack.get(i).bidAmount());
         }
     }
@@ -323,7 +329,7 @@ public class AuctionItem implements TooltipComponent {
         var bidSize = buf.readInt();
         Stack<Bid> bids = new Stack<>();
         for (int i = 0; i < bidSize; i++) {
-            bids.push(new Bid(buf.readUUID(), buf.readInt()));
+            bids.push(new Bid(buf.readUUID(), buf.readUtf(), buf.readInt()));
         }
         AuctionItem auctionItem = new AuctionItem(auctionId, currency, items, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerId, bids);
         auctionItem.setCountOfItems(countOfItems);
@@ -356,7 +362,6 @@ public class AuctionItem implements TooltipComponent {
             return "No Bids";
         }
         var highestBid = bidStack.peek();
-        var user = AuctionTheWorldAbstract.userManager.getUserByID(highestBid.user());
-        return user.getName();
+        return highestBid.username();
     }
 }

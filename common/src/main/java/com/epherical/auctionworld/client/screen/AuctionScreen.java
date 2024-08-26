@@ -1,5 +1,7 @@
 package com.epherical.auctionworld.client.screen;
 
+import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.PlayerWallet;
 import com.epherical.auctionworld.client.widgets.AuctionBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import net.minecraft.client.Minecraft;
@@ -10,6 +12,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+
+import java.util.List;
 
 public abstract class AuctionScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
@@ -50,9 +54,34 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
             this.renderBackground(graphics);
             super.render(graphics, x, y, delta);
             this.drawTitle(graphics, leftPos + 10, topPos + 10);
+            this.drawWallet(graphics, leftPos, topPos);
         } else {
             this.renderBackground(graphics);
             graphics.drawString(font, "Decrease your GUI scale to see the entire menu!",  50, 60, 0xFFFFFF);
+        }
+    }
+
+    private void drawWallet(GuiGraphics graphics, int x, int y) {
+        var wallet = AuctionTheWorldAbstract.getInstance().getPlayerWallet();
+        var topOffset = 356;
+        var leftOffset = 10;
+        List<PlayerWallet.WalletEntry> walletEntries = wallet.walletEntries;
+        if (walletEntries.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < walletEntries.size(); i++) {
+            var walletEntry = walletEntries.get(i);
+            var currency = walletEntry.currency();
+            var currencyLabel = walletEntry.getCurrencyLabel();
+            var available = walletEntry.available();
+            var inAuctions = walletEntry.inAuctions();
+            var currencyItemStack = walletEntry.getCurrencyItemStack();
+            var finalY = y + topOffset + (i * 20);
+            var finalX = x + leftOffset;
+
+            graphics.renderFakeItem(currencyItemStack, finalX, finalY);
+            var finalComponent = Component.literal(currencyLabel + ": " + available + " in wallet, " + inAuctions + " in auctions");
+            graphics.drawString(font, finalComponent, finalX + 20, finalY + 5, 0xFFFFFF);
         }
     }
 

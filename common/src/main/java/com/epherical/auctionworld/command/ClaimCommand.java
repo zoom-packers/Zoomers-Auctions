@@ -40,7 +40,7 @@ public class ClaimCommand {
                                 .executes(ClaimCommand::walletBalance))
                         .then(Commands.literal("withdraw")
                                 .then(Commands.argument("currency", StringArgumentType.string())
-                                        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                                        .then(Commands.argument("available", IntegerArgumentType.integer(1))
                                                 .executes(ClaimCommand::withdrawBalance))))
                         .then(Commands.literal("deposit")
                                 .executes(ClaimCommand::depositBalance)
@@ -133,7 +133,7 @@ public class ClaimCommand {
         var player = context.getSource().getPlayerOrException();
         var user = getUser(context);
         var currency = context.getArgument("currency", String.class);
-        var amount = context.getArgument("amount", Integer.class);
+        var amount = context.getArgument("available", Integer.class);
 
         var playerBalance = user.getCurrencyAmount(currency);
         if (playerBalance < amount) {
@@ -143,6 +143,7 @@ public class ClaimCommand {
         }
         player.sendSystemMessage(Component.translatable("Withdrawing %s %s", amount, currency));
         user.removeCurrency(currency, amount);
+        user.sendWalletData();
         var item = Config.getCurrencyItem(currency);
         var itemStack = new ItemStack(item, amount);
         giveItemToPlayer(context, itemStack);

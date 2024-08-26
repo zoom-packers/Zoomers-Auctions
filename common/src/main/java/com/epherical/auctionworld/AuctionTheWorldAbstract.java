@@ -4,14 +4,8 @@ import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
+import com.epherical.auctionworld.networking.*;
 import com.epherical.auctionworld.registry.Registry;
-import com.epherical.auctionworld.networking.C2SPageChange;
-import com.epherical.auctionworld.networking.CreateAuctionListing;
-import com.epherical.auctionworld.networking.OpenCreateAuction;
-import com.epherical.auctionworld.networking.S2CAuctionUpdate;
-import com.epherical.auctionworld.networking.S2CSendAuctionListings;
-import com.epherical.auctionworld.networking.UserSubmitBid;
-import com.epherical.auctionworld.networking.UserSubmitBuyout;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.epherolib.networking.AbstractNetworking;
 import elocindev.necronomicon.api.config.v1.NecConfigAPI;
@@ -34,6 +28,7 @@ public class AuctionTheWorldAbstract {
     public static PlayerStorage playerStorage;
     public static AuctionManager auctionManager;
     public static UserManager userManager;
+    public static PlayerWallet playerWallet = new PlayerWallet();
 
     public static List<Runnable> auctionListeners = new ArrayList<>();
 
@@ -80,6 +75,10 @@ public class AuctionTheWorldAbstract {
                 (s2CBidUpdate, buf) -> s2CBidUpdate.auctionItem().networkSerialize(buf),
                 buf -> new S2CAuctionUpdate(AuctionItem.networkDeserialize(buf)),
                 S2CAuctionUpdate::handle);
+        networking.registerServerToClient(id++, S2CWalletUpdate.class,
+                (s2CWalletUpdate, buf) -> s2CWalletUpdate.wallet().networkSerialize(buf),
+                buf -> new S2CWalletUpdate(PlayerWallet.networkDeserialize(buf)),
+                S2CWalletUpdate::handle);
 
         Events.register();
     }
@@ -99,5 +98,9 @@ public class AuctionTheWorldAbstract {
 
     public AbstractNetworking<?, ?> getNetworking() {
         return networking;
+    }
+
+    public PlayerWallet getPlayerWallet() {
+        return playerWallet;
     }
 }

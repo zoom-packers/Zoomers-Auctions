@@ -151,12 +151,13 @@ public class AuctionManager {
             return;
         }
 
-        Bid bid = new Bid(user.getUuid(), auctionItem.getBuyoutPrice());
+        Bid bid = new Bid(user.getUuid(), user.getName(), auctionItem.getBuyoutPrice());
         auctionItem.addBid(bid);
 
         user.removeCurrency(auctionItem.getCurrency(), requiredAmount);
         auctionItem.finishAuctionWithBuyOut(user);
         lastUpdated = Instant.now();
+        user.sendWalletData();
 
         for (Runnable auctionListener : AuctionTheWorldAbstract.auctionListeners) {
             auctionListener.run();
@@ -192,11 +193,12 @@ public class AuctionManager {
             return;
         }
 
-        Bid bid = new Bid(user.getUuid(), bidAmount);
+        Bid bid = new Bid(user.getUuid(), user.getName(), bidAmount);
         user.removeCurrency(auctionItem.getCurrency(), requiredAmount);
         auctionItem.addBid(bid);
         auctionItem.addTime(Config.INSTANCE.addTimeAfterBid > -1 ? Config.INSTANCE.addTimeAfterBid : 0);
         lastUpdated = Instant.now();
+        user.sendWalletData();
 
 
         sendMessagesToOutbiddedPlayers(auctionItem);

@@ -1,6 +1,9 @@
 package com.epherical.auctionworld.object;
 
+import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.PlayerWallet;
 import com.epherical.auctionworld.config.Config;
+import com.epherical.auctionworld.networking.S2CWalletUpdate;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -13,10 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class User implements DelegatedContainer {
 
@@ -287,11 +287,36 @@ public class User implements DelegatedContainer {
     }
 
     public int getCurrencyInAuctions(String currency) {
-        // TODO: Implement this, gather all the currency in auctions
-        return 0;
+        var auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager();
+        var auctions = auctionManager.getAuctions();
+        int amount = 0;
+        for (AuctionItem auction : auctions) {
+            if (auction.getCurrency().equals(currency) && !auction.isExpired() && !auction.isBoughtOut()) {
+                var bids = auction.getBidStack();
+                var bidList = new ArrayList<>(bids);
+                Collections.reverse(bidList);
+                for (Bid bid : bidList) {
+                    if (bid.user().equals(uuid)) {
+                        amount += bid.bidAmount();
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
     }
 
     public void removeClaimedItems(ClaimedItem item) {
         claimedItems.remove(item);
+    }
+
+    public void sendWalletData() {
+        var networking = AuctionTheWorldAbstract.getInstance().getNetworking();
+        var wallet = new PlayerWallet();
+        wallet.walletEntries = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
+            wallet.walletEntries.add(new PlayerWallet.WalletEntry(entry.getKey(), entry.getValue(), getCurrencyInAuctions(entry.getKey())));
+        }
+        networking.sendToClient(new S2CWalletUpdate(wallet), player);
     }
 }

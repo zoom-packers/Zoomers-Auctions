@@ -83,7 +83,6 @@ public class WalletManagementScreen extends AuctionScreen<WalletManagementMenu> 
                 // 5'th Column: Withdraw button
 
                 graphics.renderFakeItem(currencyItem, left, top);
-//                graphics.drawString(font, currency, left + 20, top + 5, 0xFFFFFF);
                 graphics.drawString(font, "In Wallet: " + user.getCurrencyAmount(currency), left + 20, top + 5, 0xFFFFFF);
                 graphics.drawString(font, "In Auctions: " + user.getCurrencyInAuctions(currency), left + 120, top + 5, 0xFFFFFF);
             }

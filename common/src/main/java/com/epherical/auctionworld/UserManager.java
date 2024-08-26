@@ -5,9 +5,7 @@ import com.epherical.auctionworld.object.User;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class UserManager {
 
@@ -37,6 +35,7 @@ public class UserManager {
             user.setPlayer(player);
             players.put(player.getUUID(), user);
             playerStorage.savePlayer(user);
+            user.sendWalletData();
         } else {
             getUserByID(player.getUUID()).setPlayer(player);
         }
