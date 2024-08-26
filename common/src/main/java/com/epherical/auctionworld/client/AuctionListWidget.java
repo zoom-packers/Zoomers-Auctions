@@ -151,18 +151,20 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             graphics.renderFakeItem(itemStack, left, top + 4);
             graphics.drawString(font, item.formatTimeLeft(), left + 120, top + 8, 0xFFFFFF, false);
 
-            int width1 = font.width(itemStack.getHoverName());
+            var itemLabel = Component.literal(item.getCountOfItems() + "x " + itemStack.getHoverName().getString());
+
+            int width1 = font.width(itemLabel);
             if (width1 >= 95) {
                 PoseStack poseStack = graphics.pose();
                 poseStack.pushPose();
                 poseStack.scale(0.5f, 0.5f, 0.5f);
                 poseStack.translate((left + 24), (top + 8), 1f);
                 //poseStack.translate((1/scale), (1/scale), 1f);
-                graphics.drawString(font, itemStack.getHoverName(), left + 24, top + 8, 0xFFFFFF, false);
+                graphics.drawString(font, itemLabel, left + 24, top + 8, 0xFFFFFF, false);
                 poseStack.scale(2f, 2f, 2f);
                 poseStack.popPose();
             } else {
-                graphics.drawString(font, itemStack.getHoverName(), left + 24, top + 8, 0xFFFFFF, false);
+                graphics.drawString(font, itemLabel, left + 24, top + 8, 0xFFFFFF, false);
             }
 
             graphics.drawString(font, item.getSeller(), left + 220, top + 8, 0xFFFFFF, false);
