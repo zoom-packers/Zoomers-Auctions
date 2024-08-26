@@ -15,14 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 
 import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -84,7 +77,9 @@ public class AuctionManager {
                         AuctionItem auction = entry.getValue();
                         auction.decrementTime();
                         if (auction.isExpired()) {
-                            auction.finishAuction(this.userManager::getUserByID);
+                            if (!auction.isBoughtOut()) {
+                                auction.finishAuction(this.userManager::getUserByID);
+                            }
                             expiredAuctions.add(entry.getKey());
                             auctionList.remove(entry.getValue());
                         }
@@ -137,24 +132,34 @@ public class AuctionManager {
 
     public void userBuyOut(User user, UUID auctionId) {
         AuctionItem auctionItem = getAuctionItem(auctionId);
-        if (auctionItem != null) {
-            if (auctionItem.getSellerID().equals(user.getUuid())) {
-                user.sendPlayerMessageIfOnline(Component.translatable("You can not bid on your own auction"));
-                return;
-            }
-            if (auctionItem.isExpired()) {
-                user.sendPlayerMessageIfOnline(Component.translatable("This auction has already expired"));
-                return;
-            }
-            if (user.hasEnough(auctionItem.getCurrency(), auctionItem.getBuyoutPrice())) {
-                auctionItem.finishAuctionWithBuyOut(user);
-                lastUpdated = Instant.now();
-            } else {
-                user.sendPlayerMessageIfOnline(Component.translatable("You do not have enough currency for this bid"));;
-            }
-            for (Runnable auctionListener : AuctionTheWorldAbstract.auctionListeners) {
-                auctionListener.run();
-            }
+        if (auctionItem == null) {
+            return;
+        }
+        if (auctionItem.getSellerID().equals(user.getUuid())) {
+            user.sendPlayerMessageIfOnline(Component.translatable("You can not bid on your own auction"));
+            return;
+        }
+        if (auctionItem.isExpired()) {
+            user.sendPlayerMessageIfOnline(Component.translatable("This auction has already expired"));
+            return;
+        }
+
+        var requiredAmount = getRequiredAmountForBid(user, auctionItem, auctionItem.getBuyoutPrice());
+        var difference = requiredAmount - user.getCurrencyAmount(auctionItem.getCurrency());
+        if (difference > 0) {
+            user.sendPlayerMessageIfOnline(Component.translatable("You do not have enough currency for this bid, you need to deposit" + difference + " more."));
+            return;
+        }
+
+        Bid bid = new Bid(user.getUuid(), auctionItem.getBuyoutPrice());
+        auctionItem.addBid(bid);
+
+        user.removeCurrency(auctionItem.getCurrency(), requiredAmount);
+        auctionItem.finishAuctionWithBuyOut(user);
+        lastUpdated = Instant.now();
+
+        for (Runnable auctionListener : AuctionTheWorldAbstract.auctionListeners) {
+            auctionListener.run();
         }
     }
 
@@ -164,40 +169,70 @@ public class AuctionManager {
 
     public void userBid(User user, UUID auctionId, int bidAmount) {
         AuctionItem auctionItem = getAuctionItem(auctionId);
-        if (auctionItem != null) {
-            if (auctionItem.getSellerID().equals(user.getUuid())) {
-                user.sendPlayerMessageIfOnline(Component.translatable("You can not bid on your auction listing."));
-                return;
-            }
-            if (auctionItem.isExpired()) {
-                user.sendPlayerMessageIfOnline(Component.translatable("This auction listing has already expired."));
-                return;
-            }
-            if (bidAmount <= auctionItem.getCurrentBidPrice()) {
-                user.sendPlayerMessageIfOnline(Component.translatable("You did not bid enough money on the auction listing."));
-                return;
-            }
+        if (auctionItem == null) {
+            return;
+        }
+        if (auctionItem.getSellerID().equals(user.getUuid())) {
+            user.sendPlayerMessageIfOnline(Component.translatable("You can not bid on your auction listing."));
+            return;
+        }
+        if (auctionItem.isExpired()) {
+            user.sendPlayerMessageIfOnline(Component.translatable("This auction listing has already expired."));
+            return;
+        }
+        if (bidAmount <= auctionItem.getCurrentBidPrice()) {
+            user.sendPlayerMessageIfOnline(Component.translatable("You did not bid enough money on the auction listing."));
+            return;
+        }
+
+        var requiredAmount = getRequiredAmountForBid(user, auctionItem, bidAmount);
+        var difference = requiredAmount - user.getCurrencyAmount(auctionItem.getCurrency());
+        if (difference > 0) {
+            user.sendPlayerMessageIfOnline(Component.translatable("You do not have enough currency for this bid, you need to deposit" + difference + " more."));
+            return;
+        }
+
+        Bid bid = new Bid(user.getUuid(), bidAmount);
+        user.removeCurrency(auctionItem.getCurrency(), requiredAmount);
+        auctionItem.addBid(bid);
+        auctionItem.addTime(Config.INSTANCE.addTimeAfterBid > -1 ? Config.INSTANCE.addTimeAfterBid : 0);
+        lastUpdated = Instant.now();
 
 
-            Bid bid = new Bid(user.getUuid(), bidAmount);
+        sendMessagesToOutbiddedPlayers(auctionItem);
+        sendNetworkUpdates(auctionItem);
+        // TODO: Send Wallet Update
+    }
 
-            Set<UUID> sentMessages = new HashSet<>();
-            for (Bid previousBids : auctionItem.getBidStack()) {
-                UUID previousID = previousBids.user();
-                if (!sentMessages.contains(previousID)) {
-                    sentMessages.add(previousID);
-                    sendPlayerMessageIfOnline(previousBids.user(), Component.translatable("Someone has outbid you for item, %s", "BINGUS"));
-                }
+    private int getRequiredAmountForBid(User user, AuctionItem auctionItem, int bidAmount) {
+        var allBids = auctionItem.getBidStack();
+        var copy = new Stack<Bid>();
+        var allUserBids = allBids.stream().filter(bid -> bid.user().equals(user.getUuid()));
+        copy.addAll(allUserBids.toList());
+        if (copy.isEmpty()) {
+            return bidAmount;
+        } else {
+            return bidAmount - copy.pop().bidAmount();
+        }
+    }
+
+    private static void sendNetworkUpdates(AuctionItem auctionItem) {
+        var playerMappings = AuctionTheWorldAbstract.getInstance().getUserManager().getPlayers();
+        for (var us : playerMappings.values()) {
+            var player = us.getPlayer();
+            if (player != null) {
+                AuctionTheWorldAbstract.getInstance().getNetworking().sendToClient(new S2CAuctionUpdate(auctionItem), player);
             }
-            auctionItem.addBid(bid);
-            auctionItem.addTime(Config.INSTANCE.addTimeAfterBid > -1 ? Config.INSTANCE.addTimeAfterBid : 0);
-            lastUpdated = Instant.now();
-            var playerMappings = AuctionTheWorldAbstract.getInstance().getUserManager().getPlayers();
-            for (var us : playerMappings.values()) {
-                var player = us.getPlayer();
-                if (player != null) {
-                    AuctionTheWorldAbstract.getInstance().getNetworking().sendToClient(new S2CAuctionUpdate(auctionItem), player);
-                }
+        }
+    }
+
+    private void sendMessagesToOutbiddedPlayers(AuctionItem auctionItem) {
+        Set<UUID> sentMessages = new HashSet<>();
+        for (Bid previousBids : auctionItem.getBidStack()) {
+            UUID previousID = previousBids.user();
+            if (!sentMessages.contains(previousID)) {
+                sentMessages.add(previousID);
+                sendPlayerMessageIfOnline(previousBids.user(), Component.translatable("Someone has outbid you for item, %s", "BINGUS"));
             }
         }
     }
@@ -221,7 +256,7 @@ public class AuctionManager {
                                String seller, UUID sellerID) {
         UUID uuid = UUID.randomUUID();
         if (!auctions.containsKey(uuid)) {
-            AuctionItem item = new AuctionItem(uuid, currency, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID, new ArrayDeque<>());
+            AuctionItem item = new AuctionItem(uuid, currency, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID, new Stack<>());
             auctions.put(uuid, item);
             auctionList.add(item);
         } else {

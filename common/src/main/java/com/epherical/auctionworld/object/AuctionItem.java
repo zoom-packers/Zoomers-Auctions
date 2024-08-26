@@ -1,5 +1,7 @@
 package com.epherical.auctionworld.object;
 
+import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.util.UUIDUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -10,13 +12,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 
 import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -34,12 +30,13 @@ public class AuctionItem implements TooltipComponent {
     private String seller;
     private UUID sellerID;
     private int minBidIncrement;
-    private ArrayDeque<Bid> bidStack;
+    private Stack<Bid> bidStack;
+    private boolean boughtOut;
 
 
 
     public AuctionItem(UUID auctionID, String currency, List<ItemStack> auctionItems, Instant auctionStarted, long timeLeft, int currentPrice, int buyoutPrice,
-                       String seller, UUID sellerID, ArrayDeque<Bid> bids) {
+                       String seller, UUID sellerID, Stack<Bid> bids) {
         this.auctionID = auctionID;
         this.currency = currency;
         this.auctionItems = auctionItems;
@@ -111,12 +108,16 @@ public class AuctionItem implements TooltipComponent {
         return sellerID;
     }
 
-    public ArrayDeque<Bid> getBidStack() {
+    public Stack<Bid> getBidStack() {
         return bidStack;
     }
 
     public long getTimeLeft() {
         return timeLeft;
+    }
+
+    public boolean isBoughtOut() {
+        return boughtOut;
     }
 
     public void addTime(long timeToAdd) {
@@ -128,21 +129,21 @@ public class AuctionItem implements TooltipComponent {
     }
 
     public int getCurrentBidPrice() {
-        return bidStack.isEmpty() ? currentPrice : bidStack.getLast().bidAmount();
+        return bidStack.isEmpty() ? currentPrice : bidStack.peek().bidAmount();
     }
 
     public void addBid(Bid bid) {
-        bidStack.add(bid);
+        bidStack.push(bid);
     }
 
     public void finishAuctionWithBuyOut(User user) {
-       if (user.hasEnough(currency, buyoutPrice)) {
-           user.takeCurrency(currency, buyoutPrice);
-           user.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
-           timeLeft = 0;
-       } else {
-           user.sendPlayerMessageIfOnline(Component.translatable("You do not have enough money for this auction"));
-       }
+        user.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
+        user.sendPlayerMessageIfOnline(Component.literal("You have bought out the auction for " + buyoutPrice + " " + Config.getAlias(currency)));
+        rewardBackOtherPlayers(user);
+        rewardAuctionSeller(buyoutPrice);
+        timeLeft = 0;
+        boughtOut = true;
+        bidStack.clear();
     }
 
     public void finishAuction(Function<UUID, User> userGetter) {
@@ -153,21 +154,39 @@ public class AuctionItem implements TooltipComponent {
             return;
         }
 
+        User winner = userGetter.apply(bidStack.peek().user());
+        winner.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
+        winner.sendPlayerMessageIfOnline(Component.literal("You have won an auction for " + getCurrentBidPrice() + " " + Config.getAlias(currency)));
+        rewardBackOtherPlayers(winner);
+        rewardAuctionSeller(currentPrice);
+    }
+
+    private void rewardBackOtherPlayers(User winner) {
+        List<User> awardedUsers = new ArrayList<>();
+        awardedUsers.add(winner);
         for (Bid bid : bidStack) {
-            int bidAmount = bid.bidAmount();
-            User user = userGetter.apply(bid.user());
-            // we will start at the top of the stack, and check if the user did a valid bid
-            if (user.hasEnough(currency, bidAmount)) {
-                user.takeCurrency(currency, bidAmount);
-                user.addWinnings(this.auctionItems, ClaimedItem.ClaimType.WON_LISTING);
-                return;
-            } else {
-                user.sendPlayerMessageIfOnline(Component.translatable("You previously bid on an ending auction and did not have enough money." +
-                        " It is going to the next highest bidder."));
-                // todo; decide if we want to punish the user for trying to game the system in submit fraudulent bids
+            User user = AuctionTheWorldAbstract.userManager.getUserByID(bid.user());
+            if (awardedUsers.contains(user)) {
+                continue;
             }
+            user.addCurrency(currency, bid.bidAmount());
+            var player = user.getPlayer();
+            if (player != null) {
+                user.sendPlayerMessageIfOnline(Component.literal("You have been refunded " + bid.bidAmount() + " " + Config.getAlias(currency) + " for the auction you bid on."));
+            }
+            awardedUsers.add(user);
         }
     }
+
+    private void rewardAuctionSeller(int reward) {
+        var seller = AuctionTheWorldAbstract.userManager.getUserByID(sellerID);
+        seller.addCurrency(currency, reward);
+        var player = seller.getPlayer();
+        if (player != null) {
+            seller.sendPlayerMessageIfOnline(Component.literal("Your auction has ended and you have been rewarded with " + reward + " " + Config.getAlias(currency)));
+        }
+    }
+
 
     public static Map<UUID, AuctionItem> loadAuctions(CompoundTag tag) {
         ListTag auctions = tag.getList("auctions", 10);
@@ -176,10 +195,10 @@ public class AuctionItem implements TooltipComponent {
             CompoundTag auction = (CompoundTag) a;
             ListTag bidders = auction.getList("bids", 10);
 
-            ArrayDeque<Bid> bids = new ArrayDeque<>();
+            Stack<Bid> bids = new Stack<>();
             for (int i = 0; i < bidders.size(); i++) {
                 CompoundTag compound = bidders.getCompound(i);
-                bids.add(Bid.deserialize(compound));
+                bids.push(Bid.deserialize(compound));
             }
 
             AuctionItem auctionItem = new AuctionItem(
@@ -222,12 +241,19 @@ public class AuctionItem implements TooltipComponent {
         return allTag;
     }
 
-    private static CompoundTag saveAllBids(CompoundTag tag, ArrayDeque<Bid> bids) {
+    private static CompoundTag saveAllBids(CompoundTag tag, Stack<Bid> bids) {
         ListTag bidList = new ListTag();
-        bids.descendingIterator().forEachRemaining(bid -> bidList.add(Bid.serialize(bid)));
-        tag.put("bids", bidList);
+        bids.iterator().forEachRemaining(bid -> bidList.add(Bid.serialize(bid)));
         return tag;
     }
+
+//    private static ListTag reverseListTag(ListTag listTag) {
+//        ListTag reversed = new ListTag();
+//        for (int i = listTag.size() - 1; i >= 0; i--) {
+//            reversed.add(listTag.get(i));
+//        }
+//        return reversed;
+//    }
 
     private static CompoundTag saveAllItems(CompoundTag tag, List<ItemStack> list) {
         ListTag listOfItems = new ListTag();
@@ -269,11 +295,31 @@ public class AuctionItem implements TooltipComponent {
         buf.writeUtf(seller);
         buf.writeUUID(sellerID);
         buf.writeInt(getCountOfItems());
+        buf.writeInt(bidStack.size());
+        for (int i = 0; i < bidStack.size(); i++) {
+            buf.writeUUID(bidStack.get(i).user());
+            buf.writeInt(bidStack.get(i).bidAmount());
+        }
     }
 
     public static AuctionItem networkDeserialize(FriendlyByteBuf buf) {
-        AuctionItem auctionItem = new AuctionItem(buf.readUUID(), buf.readUtf(), List.of(buf.readItem()), buf.readInstant(), buf.readLong(), buf.readInt(), buf.readInt(), buf.readUtf(), buf.readUUID(), new ArrayDeque<>());
-        auctionItem.setCountOfItems(buf.readInt());
+        var auctionId = buf.readUUID();
+        var currency = buf.readUtf();
+        var item = buf.readItem();
+        var auctionStarted = buf.readInstant();
+        var timeLeft = buf.readLong();
+        var currentPrice = buf.readInt();
+        var buyoutPrice = buf.readInt();
+        var seller = buf.readUtf();
+        var sellerId = buf.readUUID();
+        var countOfItems = buf.readInt();
+        var bidSize = buf.readInt();
+        Stack<Bid> bids = new Stack<>();
+        for (int i = 0; i < bidSize; i++) {
+            bids.push(new Bid(buf.readUUID(), buf.readInt()));
+        }
+        AuctionItem auctionItem = new AuctionItem(auctionId, currency, List.of(item), auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerId, bids);
+        auctionItem.setCountOfItems(countOfItems);
         auctionItem.auctionItems.get(0).setCount(auctionItem.getCountOfItems());
         return auctionItem;
     }

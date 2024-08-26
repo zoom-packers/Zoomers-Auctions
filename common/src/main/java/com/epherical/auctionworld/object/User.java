@@ -257,8 +257,12 @@ public class User implements DelegatedContainer {
         return uuid;
     }
 
-    public void takeCurrency(String currency, int amountToTake) {
+    public void removeCurrency(String currency, int amountToTake) {
         this.currencyMap.put(currency, this.currencyMap.get(currency) - amountToTake);
+    }
+
+    public void addCurrency(String currency, int amountToAdd) {
+        this.currencyMap.put(currency, this.currencyMap.get(currency) + amountToAdd);
     }
 
     public NonNullList<ClaimedItem> getClaimedItems() {

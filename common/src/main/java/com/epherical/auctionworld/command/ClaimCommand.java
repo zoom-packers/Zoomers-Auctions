@@ -142,7 +142,7 @@ public class ClaimCommand {
             return 1;
         }
         player.sendSystemMessage(Component.translatable("Withdrawing %s %s", amount, currency));
-        user.takeCurrency(currency, amount);
+        user.removeCurrency(currency, amount);
         var item = Config.getCurrencyItem(currency);
         var itemStack = new ItemStack(item, amount);
         giveItemToPlayer(context, itemStack);
