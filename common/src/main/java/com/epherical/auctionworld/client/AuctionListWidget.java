@@ -2,7 +2,7 @@ package com.epherical.auctionworld.client;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.client.screen.BrowseAuctionScreen;
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.networking.UserSubmitBid;
 import com.epherical.auctionworld.networking.UserSubmitBuyout;
 import com.epherical.auctionworld.object.AuctionItem;
@@ -146,7 +146,7 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             Font font = AuctionListWidget.this.minecraft.font;
             ItemStack itemStack = item.getAuctionItems().get(0);
             var itemCurrency = item.getCurrency();
-            var itemCurrencyItem = ConfigBasics.getCurrencyItem(itemCurrency);
+            var itemCurrencyItem = Config.getCurrencyItem(itemCurrency);
             ItemStack currencyStack = new ItemStack(itemCurrencyItem, 1);
             graphics.renderFakeItem(itemStack, left, top + 4);
             graphics.drawString(font, item.formatTimeLeft(), left + 120, top + 8, 0xFFFFFF, false);

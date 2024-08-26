@@ -1,6 +1,6 @@
 package com.epherical.auctionworld;
 
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.networking.S2CAuctionUpdate;
 import com.epherical.auctionworld.networking.S2CSendAuctionListings;
@@ -190,7 +190,7 @@ public class AuctionManager {
                 }
             }
             auctionItem.addBid(bid);
-            auctionItem.addTime(ConfigBasics.INSTANCE.addTimeAfterBid > -1 ? ConfigBasics.INSTANCE.addTimeAfterBid : 0);
+            auctionItem.addTime(Config.INSTANCE.addTimeAfterBid > -1 ? Config.INSTANCE.addTimeAfterBid : 0);
             lastUpdated = Instant.now();
             var playerMappings = AuctionTheWorldAbstract.getInstance().getUserManager().getPlayers();
             for (var us : playerMappings.values()) {

@@ -1,12 +1,10 @@
 package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.menu.CreateAuctionMenu;
 import com.epherical.auctionworld.menu.slot.SelectableSlot;
 import com.epherical.auctionworld.networking.CreateAuctionListing;
-import net.minecraft.client.OptionInstance;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.network.chat.CommonComponents;
@@ -69,8 +67,8 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
     @Override
     protected void init() {
         super.init();
-        var currencies = ConfigBasics.INSTANCE.currencies;
-        var aliases = ConfigBasics.INSTANCE.currencyAliases;
+        var currencies = Config.INSTANCE.currencies;
+        var aliases = Config.INSTANCE.currencyAliases;
         var options = new ArrayList<SelectionButton>();
         for (int i = 0; i < currencies.length; i++) {
             var currency = currencies[i];
@@ -117,7 +115,7 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
 
         var currencyLabel = currencySelected.isEmpty() ?
                 Component.translatable("Currency - Select Currency") :
-                Component.translatable("Currency - " + ConfigBasics.getAlias(currencySelected));
+                Component.translatable("Currency - " + Config.getAlias(currencySelected));
 
         drawString(graphics, leftPos + 134, topPos + 30, timeLabel);
         drawString(graphics, leftPos + 134, topPos + 70, startingBidLabel);

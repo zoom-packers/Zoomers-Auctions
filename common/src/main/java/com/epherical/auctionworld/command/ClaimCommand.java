@@ -2,7 +2,7 @@ package com.epherical.auctionworld.command;
 
 import com.epherical.auctionworld.AuctionManager;
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.object.ClaimedItem;
 import com.epherical.auctionworld.object.User;
 import com.mojang.brigadier.CommandDispatcher;
@@ -120,7 +120,7 @@ public class ClaimCommand {
     private static int walletBalance(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrException();
         var user = getUser(context);
-        var allCurrencies = ConfigBasics.INSTANCE.currencies;
+        var allCurrencies = Config.INSTANCE.currencies;
         player.sendSystemMessage(Component.translatable("Wallet Balances:"));
         for (var currency : allCurrencies) {
             var balance = user.getCurrencyAmount(currency);
@@ -143,7 +143,7 @@ public class ClaimCommand {
         }
         player.sendSystemMessage(Component.translatable("Withdrawing %s %s", amount, currency));
         user.takeCurrency(currency, amount);
-        var item = ConfigBasics.getCurrencyItem(currency);
+        var item = Config.getCurrencyItem(currency);
         var itemStack = new ItemStack(item, amount);
         giveItemToPlayer(context, itemStack);
         return 1;
@@ -154,8 +154,8 @@ public class ClaimCommand {
         var user = getUser(context);
         var playerMainHand = player.getMainHandItem();
         var item = playerMainHand.getItem();
-        var currency = ConfigBasics.getCurrencyForItem(item);
-        if (!Arrays.stream(ConfigBasics.INSTANCE.currencies).toList().contains(currency)) {
+        var currency = Config.getCurrencyForItem(item);
+        if (!Arrays.stream(Config.INSTANCE.currencies).toList().contains(currency)) {
             player.sendSystemMessage(Component.translatable("You cannot deposit this item as currency"));
             return 1;
         }

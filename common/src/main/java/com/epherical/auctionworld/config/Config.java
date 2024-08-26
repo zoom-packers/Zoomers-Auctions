@@ -9,10 +9,10 @@ import net.minecraft.world.item.Item;
 /**
  * Temporary class to build out a config that we populate later.
  */
-public class ConfigBasics {
+public class Config {
 
     @NecConfig
-    public static ConfigBasics INSTANCE;
+    public static Config INSTANCE;
 
     public static String getFile() {
         return NecConfigAPI.getFile("auctionworld.json5");
@@ -20,6 +20,7 @@ public class ConfigBasics {
 
     public String[] currencies = new String[]{"minecraft:diamond", "minecraft:emerald", "minecraft:netherite_ingot"};
     public String[] currencyAliases = new String[]{"Diamond", "Emerald", "Netherite Ingot"};
+    public Integer[] startingCurrencies = new Integer[]{64, 64, 64};
     public int listingFee = -1;
     public int addTimeAfterBid = -1;
 

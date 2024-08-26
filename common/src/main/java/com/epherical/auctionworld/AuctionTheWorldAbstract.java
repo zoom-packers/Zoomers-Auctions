@@ -1,7 +1,7 @@
 package com.epherical.auctionworld;
 
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
 import com.epherical.auctionworld.registry.Registry;
@@ -39,7 +39,7 @@ public class AuctionTheWorldAbstract {
 
     public AuctionTheWorldAbstract(AbstractNetworking net) {
         mod = this;
-        NecConfigAPI.registerConfig(ConfigBasics.class);
+        NecConfigAPI.registerConfig(Config.class);
         networking = net;
         Registry.bootstrap();
 

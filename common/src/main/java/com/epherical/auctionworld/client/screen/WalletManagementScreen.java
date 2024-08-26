@@ -1,8 +1,7 @@
 package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
-import com.epherical.auctionworld.client.AuctionListWidget;
-import com.epherical.auctionworld.config.ConfigBasics;
+import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.menu.WalletManagementMenu;
 import com.epherical.auctionworld.object.User;
 import net.minecraft.client.Minecraft;
@@ -49,8 +48,8 @@ public class WalletManagementScreen extends AuctionScreen<WalletManagementMenu> 
         public WalletCurrencyList(Minecraft minecraft, int i, int j, int k, int l, int m, WalletManagementScreen walletManagementScreen) {
             super(minecraft, i, j, k, l, m);
             this.walletManagementScreen = walletManagementScreen;
-            currencies = List.of(ConfigBasics.INSTANCE.currencies);
-            currencyItems = currencies.stream().map(ConfigBasics::getCurrencyItem).map(ItemStack::new).toList();
+            currencies = List.of(Config.INSTANCE.currencies);
+            currencyItems = currencies.stream().map(Config::getCurrencyItem).map(ItemStack::new).toList();
 
             for (int index = 0; index < currencies.size(); index++) {
                 addEntry(new WalletCurrencyEntry(currencies.get(index), currencyItems.get(index), AuctionTheWorldAbstract.getInstance().getUserManager().getUserByID(minecraft.player.getUUID())));

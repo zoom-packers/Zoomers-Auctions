@@ -1,19 +1,14 @@
 package com.epherical.auctionworld.object;
 
-import com.epherical.auctionworld.config.ConfigBasics;
-import com.epherical.auctionworld.util.ClaimedItemUtil;
+import com.epherical.auctionworld.config.Config;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,14 +35,19 @@ public class User implements DelegatedContainer {
     private NonNullList<ClaimedItem> claimedItems;
 
     public User(UUID uuid, String name) {
-        this(uuid, name, NonNullList.create(), new HashMap<>());
+        this(uuid, name, NonNullList.create(), new HashMap<>(), Config.INSTANCE.startingCurrencies);
     }
 
-    private User(UUID uuid, String name, NonNullList<ClaimedItem> items, Map<String, Integer> currencyMap) {
+    private User(UUID uuid, String name, NonNullList<ClaimedItem> items, Map<String, Integer> currencyMap, Integer[] startingCurrencies) {
         this.uuid = uuid;
         this.name = name;
         this.claimedItems = items;
         this.currencyMap = currencyMap;
+        if (startingCurrencies != null) {
+            for (int i = 0; i < startingCurrencies.length; i++) {
+                this.currencyMap.put(Config.INSTANCE.currencies[i], startingCurrencies[i]);
+            }
+        }
     }
 
 
@@ -84,7 +84,7 @@ public class User implements DelegatedContainer {
         }
         NonNullList<ClaimedItem> items = NonNullList.create();
         loadAllItems(tag, items);
-        return new User(uuid, name, items, currencyMap);
+        return new User(uuid, name, items, currencyMap, null);
     }
 
     public CompoundTag saveUser() {
