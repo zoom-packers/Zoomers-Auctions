@@ -1,6 +1,6 @@
 package com.epherical.auctionworld;
 
-import com.epherical.auctionworld.command.ClaimCommand;
+import com.epherical.auctionworld.command.ATWCommands;
 import com.epherical.auctionworld.data.FlatAuctionStorage;
 import com.epherical.auctionworld.data.FlatPlayerStorage;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
@@ -12,7 +12,7 @@ public class Events {
 
     public static void register() {
         CommandRegistrationEvent.EVENT.register((dispatcher, registryAccess, environment) -> {
-            ClaimCommand.registerCommand(dispatcher);
+            ATWCommands.registerCommand(dispatcher);
         });
         LifecycleEvent.SERVER_STARTED.register(server -> {
             AuctionTheWorldAbstract.auctionStorage = new FlatAuctionStorage(LevelResource.ROOT, server, "epherical/auctiontw");

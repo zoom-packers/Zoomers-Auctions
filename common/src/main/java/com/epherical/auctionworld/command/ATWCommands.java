@@ -2,7 +2,9 @@ package com.epherical.auctionworld.command;
 
 import com.epherical.auctionworld.AuctionManager;
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
+import com.epherical.auctionworld.block.AuctionBlock;
 import com.epherical.auctionworld.config.Config;
+import com.epherical.auctionworld.menu.BrowseAuctionMenu;
 import com.epherical.auctionworld.object.ClaimedItem;
 import com.epherical.auctionworld.object.User;
 import com.mojang.brigadier.CommandDispatcher;
@@ -23,6 +25,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,31 +34,39 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class ClaimCommand {
+public class ATWCommands {
 
     public static void registerCommand(CommandDispatcher<CommandSourceStack> stack) {
-        stack.register(Commands.literal("atw")
+        stack.register(Commands.literal("auctions")
+                .executes(ATWCommands::openMenu)
                 .then(Commands.literal("wallet")
+                        .executes(ATWCommands::walletBalance)
                         .then(Commands.literal("balance")
-                                .executes(ClaimCommand::walletBalance))
+                                .executes(ATWCommands::walletBalance))
                         .then(Commands.literal("withdraw")
                                 .then(Commands.argument("currency", StringArgumentType.string())
                                         .then(Commands.argument("available", IntegerArgumentType.integer(1))
-                                                .executes(ClaimCommand::withdrawBalance))))
+                                                .executes(ATWCommands::withdrawBalance))))
                         .then(Commands.literal("deposit")
-                                .executes(ClaimCommand::depositBalance)
+                                .executes(ATWCommands::depositBalance)
                                 .then(Commands.literal("claim")
-                                        .executes(ClaimCommand::listClaims)
+                                        .executes(ATWCommands::listClaims)
                                         .then(Commands.argument("claim", IntegerArgumentType.integer(1))
-                                                .executes(ClaimCommand::claimItems)))
+                                                .executes(ATWCommands::claimItems)))
                                 .then(Commands.literal("gen_auctions")
                                         .requires(commandSourceStack -> commandSourceStack.hasPermission(4))
-                                        .executes(ClaimCommand::generateAuction))))
+                                        .executes(ATWCommands::generateAuction))))
                 .then(Commands.literal("claim")
-                        .executes(ClaimCommand::claimItems))
+                        .executes(ATWCommands::claimItems))
                 .then(Commands.literal("gen_auctions")
                         .requires(commandSourceStack -> commandSourceStack.hasPermission(4))
-                        .executes(ClaimCommand::generateAuction)));
+                        .executes(ATWCommands::generateAuction)));
+    }
+
+    private static int openMenu(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayerOrException();
+        player.openMenu(AuctionBlock.getMenuProviderGlobal());
+        return 1;
     }
 
     private static int generateAuction(CommandContext<CommandSourceStack> context) {
@@ -132,8 +143,31 @@ public class ClaimCommand {
     private static int withdrawBalance(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrException();
         var user = getUser(context);
-        var currency = context.getArgument("currency", String.class);
+        var currencyText = context.getArgument("currency", String.class).toLowerCase();
         var amount = context.getArgument("available", Integer.class);
+
+        boolean foundCurrency = false;
+        String currency = null;
+        for (var c : Config.INSTANCE.currencies) {
+            if (c.toLowerCase().equals(currencyText)) {
+                foundCurrency = true;
+                currency = c;
+                break;
+            }
+        }
+
+        for (var c : Config.INSTANCE.currencyAliases) {
+            if (c.toLowerCase().equals(currencyText)) {
+                foundCurrency = true;
+                currency = Config.INSTANCE.currencies[Arrays.asList(Config.INSTANCE.currencyAliases).indexOf(c)];
+                break;
+            }
+        }
+
+        if (!foundCurrency) {
+            player.sendSystemMessage(Component.translatable("Invalid currency"));
+            return 1;
+        }
 
         var playerBalance = user.getCurrencyAmount(currency);
         if (playerBalance < amount) {
