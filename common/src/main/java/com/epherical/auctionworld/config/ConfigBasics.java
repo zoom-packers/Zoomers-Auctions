@@ -19,6 +19,7 @@ public class ConfigBasics {
     }
 
     public String[] currencies = new String[]{"minecraft:diamond", "minecraft:emerald", "minecraft:netherite_ingot"};
+    public String[] currencyAliases = new String[]{"Diamond", "Emerald", "Netherite Ingot"};
     public int listingFee = -1;
     public int addTimeAfterBid = -1;
 
@@ -29,5 +30,19 @@ public class ConfigBasics {
 
     public static String getCurrencyForItem(Item item) {
         return BuiltInRegistries.ITEM.getKey(item).toString();
+    }
+
+    public static String getAlias(String currency) {
+        var index = -1;
+        for (int i = 0; i < INSTANCE.currencies.length; i++) {
+            if (INSTANCE.currencies[i].equals(currency)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            return "Unknown";
+        }
+        return INSTANCE.currencyAliases[index];
     }
 }

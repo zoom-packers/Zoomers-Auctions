@@ -1,87 +1,144 @@
 package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
-import com.epherical.auctionworld.client.widgets.AuctionMenuBase;
-import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
-import com.epherical.auctionworld.registry.Registry;
+import com.epherical.auctionworld.config.ConfigBasics;
 import com.epherical.auctionworld.menu.CreateAuctionMenu;
 import com.epherical.auctionworld.menu.slot.SelectableSlot;
 import com.epherical.auctionworld.networking.CreateAuctionListing;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
 
     private Button createAuction;
     private EditBox timeSelection;
-    private Button days;
-    private Button hours;
     //private EditBox bidIncrement;
     private EditBox startingBid;
     private EditBox buyoutPrice;
-    private EditBox currencyBox;
-    private boolean daysActive = false;
-    private boolean hoursActive = false;
+    private String currencySelected = "";
+    private char timeUnit = ' ';
 
 
     public CreateAuctionScreen(CreateAuctionMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
     }
 
+
+    private EditBox drawStringField(int x, int y, int width, int height) {
+        var result = new EditBox(font, x, y, width, height, Component.empty());
+        addRenderableWidget(result);
+        return result;
+    }
+
+    private EditBox drawNumericalField(int x, int y, int width, int height) {
+        var result = new EditBox(font, x, y, width, height, Component.empty());
+        result.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
+        addRenderableWidget(result);
+        return addRenderableWidget(result);
+    }
+
+    private Button drawButton(int x, int y, int width, int height, Component text, Button.OnPress onPress) {
+        var result = Button.builder(text, onPress).pos(x, y).size(width, height).build();
+        addRenderableWidget(result);
+        return result;
+    }
+
+    private void drawMultiOption(int x, int y, int width, int height, List<SelectionButton> options) {
+        var optionSize = options.size();
+        var singleButtonSize = width / optionSize;
+        for (int i = 0; i < optionSize; i++) {
+            var option = options.get(i);
+            var button = Button.builder(Component.literal(option.label), option.onPress).pos(x + (i * singleButtonSize), y).size(singleButtonSize, height).build();
+            addRenderableWidget(button);
+        }
+    }
+
+    private void drawString(GuiGraphics graphics, int x, int y, Component text) {
+        graphics.drawString(font, text, x, y, 0xFFFFFF);
+    }
+
     @Override
     protected void init() {
         super.init();
-        PlainTextButton plainTextButton = new PlainTextButton(82 + leftPos, 249 + topPos, 80, 20, Component.translatable("Finish Auction"), button -> {
+        var currencies = ConfigBasics.INSTANCE.currencies;
+        var aliases = ConfigBasics.INSTANCE.currencyAliases;
+        var options = new ArrayList<SelectionButton>();
+        for (int i = 0; i < currencies.length; i++) {
+            var currency = currencies[i];
+            var alias = aliases[i];
+            options.add(new SelectionButton(currency, alias, button -> {
+                currencySelected = currency;
+            }));
+        }
+
+        timeSelection = drawNumericalField(leftPos + 134, topPos + 40, 188, 20);
+        drawMultiOption(leftPos + 322, topPos + 40, 180, 20, List.of(
+                new SelectionButton("m", "Minutes", button -> timeUnit = 'm'),
+                new SelectionButton("h", "Hours", button -> timeUnit = 'h'),
+                new SelectionButton("d", "Days", button -> timeUnit = 'd')
+        ));
+
+        startingBid = drawNumericalField(leftPos + 134, topPos + 80, 368, 20);
+        buyoutPrice = drawNumericalField(leftPos + 134, topPos + 120, 368, 20);
+        drawMultiOption(leftPos + 134, topPos + 160, 368, 20, options);
+
+        createAuction = drawButton(leftPos + 134, topPos + 220, 368, 20, CommonComponents.GUI_DONE, button -> {
             validateAndSendToServer();
-        }, font);
-        plainTextButton.setTooltip(Tooltip.create(Component.literal("Don't forget to select the items in your inventory!")));
-
-        createAuction = addRenderableWidget(plainTextButton);
-
-        timeSelection = addRenderableWidget(new EditBox(font, 129 + leftPos, 44 + topPos, 100, 20, Component.translatable("Time Selection")));
-        timeSelection.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
-        timeSelection.setTooltip(Tooltip.create(Component.translatable("How much time until the auction expires. Max: 7D or 168H. (REQUIRED)")));
-
-        days = addRenderableWidget(Button.builder(Component.literal("D"), button -> {
-            daysActive = true;
-            button.setFocused(true);
-            hours.setFocused(false);
-            hoursActive = false;
-        }).pos(231 + leftPos, 44 + topPos).width(20).tooltip(Tooltip.create(Component.translatable("How many days until the auction expires"))).build());
-        hours = addRenderableWidget(Button.builder(Component.literal("H"), button -> {
-            hoursActive = true;
-            button.setFocused(true);
-            days.setFocused(false);
-            daysActive = false;
-        }).pos(263 + leftPos, 44 + topPos).width(20).tooltip(Tooltip.create(Component.translatable("How many hours until the auction expires"))).build());
-
-
-        /*bidIncrement = addRenderableWidget(new EditBox(font, 126 + leftPos, 64 + topPos, 100, 20, Component.translatable("Bid Increment")));
-        bidIncrement.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
-        bidIncrement.setHint(Component.literal("Bid Increment"));
-        bidIncrement.setTooltip(Tooltip.create(Component.translatable("Whenever a player bids, how much they have to bid at a minimum.")));*/
-
-
-        startingBid = addRenderableWidget(new EditBox(font, 129 + leftPos, 84 + topPos, 100, 20, Component.translatable("Starting Bid")));
-        startingBid.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
-        startingBid.setTooltip(Tooltip.create(Component.translatable("What the starting bid will be. This is the minimum price someone must pay to receive the item (REQUIRED)")));
-        buyoutPrice = addRenderableWidget(new EditBox(font, 129 + leftPos, 124 + topPos, 100, 20, Component.translatable("Buyout Price")));
-        buyoutPrice.setFilter(s -> s.matches("[0-9]+") || s.isEmpty());
-        buyoutPrice.setTooltip(Tooltip.create(Component.translatable("How much a user will have to pay to just straight up buy the item. Leave blank to not set one. (OPTIONAL)")));
-        currencyBox = addRenderableWidget(new EditBox(font, 129 + leftPos, 164 + topPos, 100, 20, Component.translatable("Currency")));
-        currencyBox.setFilter(s -> s.matches("[a-zA-Z]+") || s.isEmpty());
-        currencyBox.setTooltip(Tooltip.create(Component.translatable("What currency the auction will be in. (REQUIRED)")));
+        });
     }
-
 
     @Override
     public void render(GuiGraphics graphics, int x, int y, float delta) {
         super.render(graphics, x, y, delta);
 
+        renderInventoryHighlight(graphics);
+
+        var timeResult = timeSelection.getValue() + " " + timeUnitToString(timeUnit);
+        var timeLabel = timeSelection.getValue().isEmpty() || timeUnit == ' ' ?
+                Component.translatable("How many much time until auction expires? - Insert time & unit") :
+                Component.translatable("How many much time until auction expires? - " + timeResult);
+
+        var startingBidLabel = startingBid.getValue().isEmpty() ?
+                Component.translatable("Starting bid - Insert starting bid") :
+                Component.translatable("Starting bid - " + startingBid.getValue());
+
+        var buyoutPriceLabel = buyoutPrice.getValue().isEmpty() ?
+                Component.translatable("Buyout price - Insert buyout price") :
+                Component.translatable("Buyout price - " + buyoutPrice.getValue());
+
+        var currencyLabel = currencySelected.isEmpty() ?
+                Component.translatable("Currency - Select Currency") :
+                Component.translatable("Currency - " + ConfigBasics.getAlias(currencySelected));
+
+        drawString(graphics, leftPos + 134, topPos + 30, timeLabel);
+        drawString(graphics, leftPos + 134, topPos + 70, startingBidLabel);
+        drawString(graphics, leftPos + 134, topPos + 110, buyoutPriceLabel);
+        drawString(graphics, leftPos + 134, topPos + 150, currencyLabel);
+
+
+        this.renderTooltip(graphics, x, y);
+    }
+
+    private String timeUnitToString(char timeUnit) {
+        return switch (timeUnit) {
+            case 'm' -> "minutes";
+            case 'd' -> "days";
+            case 'h' -> "hours";
+            default -> "invalid";
+        };
+    }
+
+
+    private void renderInventoryHighlight(GuiGraphics graphics) {
         graphics.pose().pushPose();
         graphics.pose().translate(leftPos, topPos, -500.0F);
         if (this.menu.getFirstSlot() != null) {
@@ -98,13 +155,11 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
             renderSlotHighlight(graphics, slotX, slotY, 0);
         }
         graphics.pose().popPose();
-
-        this.renderTooltip(graphics, x, y);
     }
 
     private void validateAndSendToServer() {
         int time;
-        if (daysActive) {
+        if (timeUnit == 'd') {
             String value = timeSelection.getValue();
             time = Integer.parseInt(value);
             if (time > 7) {
@@ -112,16 +167,25 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
                 return;
             }
             time *= 24;
-        } else if (hoursActive) {
+            time *= 60;
+        } else if (timeUnit == 'h') {
             String value = timeSelection.getValue();
             time = Integer.parseInt(value);
             if (time > 168) {
                 // todo; maybe send error msg in screen
                 return;
             }
+            time *= 60;
+        } else if (timeUnit == 'm') {
+            String value = timeSelection.getValue();
+            time = Integer.parseInt(value);
+            if (time > 1080) {
+                // todo; maybe send error msg in screen
+                return;
+            }
         } else {
-            // player didn't select the time... lets go default 24hrs
-            time = 24;
+            // todo; maybe send error msg in screen
+            return;
         }
 
         if (startingBid.getValue().isEmpty()) {
@@ -133,9 +197,17 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
         if (!buyoutPrice.getValue().isEmpty()) {
             buyout = Integer.parseInt(buyoutPrice.getValue());
         }
-        String currency = currencyBox.getValue();
+        String currency = currencySelected;
 
 
         AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new CreateAuctionListing(time, start, buyout, currency));
+    }
+
+    private record SelectionButton<T>(T value, String label, Button.OnPress onPress) {
+        private SelectionButton(T value, String label, Button.OnPress onPress) {
+            this.value = value;
+            this.label = label;
+            this.onPress = onPress;
+        }
     }
 }

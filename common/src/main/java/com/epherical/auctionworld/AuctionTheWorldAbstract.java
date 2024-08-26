@@ -51,7 +51,7 @@ public class AuctionTheWorldAbstract {
                 friendlyByteBuf -> new OpenCreateAuction((AuctionMenuWidget.CurrentScreen.values()[friendlyByteBuf.readInt()])), OpenCreateAuction::handle);
         networking.registerClientToServer(id++, CreateAuctionListing.class,
                 (createAuctionListing, friendlyByteBuf) -> {
-                    friendlyByteBuf.writeInt(createAuctionListing.timeInHours());
+                    friendlyByteBuf.writeInt(createAuctionListing.timeInMinutes());
                     friendlyByteBuf.writeInt(createAuctionListing.startPrice());
                     friendlyByteBuf.writeInt(createAuctionListing.buyoutPrice());
                     friendlyByteBuf.writeUtf(createAuctionListing.currency());
