@@ -37,6 +37,7 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
     public AuctionListWidget(Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight, BrowseAuctionScreen screen) {
         super(minecraft, width, height, y0, y1, itemHeight);
         this.screen = screen;
+        this.setLeftPos(-64);
         this.bidAmt = new EditBox(minecraft.font, -100, -100, 70, 20, Component.translatable("Bid Amount"));
         this.bidButton = Button.builder(Component.translatable("Bid"), pButton -> {
             Entry selected = getSelected();
@@ -82,12 +83,12 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
 
     @Override
     public int getRowWidth() {
-        return 384;
+        return 498;
     }
 
     @Override
     protected int getScrollbarPosition() {
-        return this.width / 2 + 190;
+        return this.width / 2 + 185;
     }
 
     @Override
@@ -149,12 +150,12 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
             var itemCurrencyItem = Config.getCurrencyItem(itemCurrency);
             ItemStack currencyStack = new ItemStack(itemCurrencyItem, 1);
             graphics.renderFakeItem(itemStack, left, top + 4);
-            graphics.drawString(font, item.formatTimeLeft(), left + 120, top + 8, 0xFFFFFF, false);
+            graphics.drawString(font, item.formatTimeLeft(), left + 145, top + 8, 0xFFFFFF, false);
 
             var itemLabel = Component.literal(item.getCountOfItems() + "x " + itemStack.getHoverName().getString());
 
             int width1 = font.width(itemLabel);
-            if (width1 >= 95) {
+            if (width1 >= 120) {
                 PoseStack poseStack = graphics.pose();
                 poseStack.pushPose();
                 poseStack.scale(0.5f, 0.5f, 0.5f);
@@ -167,25 +168,26 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
                 graphics.drawString(font, itemLabel, left + 24, top + 8, 0xFFFFFF, false);
             }
 
-            graphics.drawString(font, item.getSeller(), left + 220, top + 8, 0xFFFFFF, false);
-            graphics.renderFakeItem(currencyStack, left + 316, top + 6);
-            graphics.drawString(font, String.valueOf(item.getCurrentBidPrice()), left + 334, top + 2, 0xFFFFFF, false);
-            graphics.drawString(font, String.valueOf(item.getBuyoutPrice()), left + 334, top + 15, 0xFFFFFF, false);
+            graphics.drawString(font, item.getSeller(), left + 245, top + 8, 0xFFFFFF, false);
+            graphics.drawString(font, item.getHighestBidder(), left + 345, top + 8, 0xFFFFFF, false);
+            graphics.renderFakeItem(currencyStack, left + 441, top + 6);
+            graphics.drawString(font, String.valueOf(item.getCurrentBidPrice()), left + 460, top + 2, 0xFFFFFF, false);
+            graphics.drawString(font, String.valueOf(item.getBuyoutPrice()), left + 460, top + 15, 0xFFFFFF, false);
 
 
             PoseStack pose = graphics.pose();
             if (hovered) {
                 pose.pushPose();
                 pose.translate(0f, 10f, 800f);
-                if (x > left && x < left + 115) {
+                if (x > left && x < left + 140) {
                     List<Component> tooltipFromItem = Screen.getTooltipFromItem(minecraft, itemStack);
                     graphics.renderTooltip(font, tooltipFromItem, itemStack.getTooltipImage(), x, y);
-                } else if (x > left + 316 && x < left + 328) {
+                } else if (x > left + 441 && x < left + 428) {
                     // this is for the currency tooltip
                     graphics.renderTooltip(font, Component.translatable("Currency"), x, y);
-                } else if (x > left + 328 && y < top + 8) {
+                } else if (x > left + 453 && y < top + 8) {
                     graphics.renderTooltip(font, Component.translatable("Current Bidding Price"), x, y);
-                } else if (x > left + 328 && y > top + 8 && y < top + 25) {
+                } else if (x > left + 453 && y > top + 8 && y < top + 25) {
                     graphics.renderTooltip(font, Component.translatable("Buyout Price"), x, y);
                 }
                 pose.popPose();

@@ -86,7 +86,7 @@ public class AuctionBlock extends Block {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
-            player.openMenu(state.getMenuProvider(level, pos));
+            player.openMenu(new SimpleMenuProvider((id, inventory, player1) -> new BrowseAuctionMenu(id, inventory), Component.translatable("BROWSE_AUCTIONS")));
             //player.awardStat(Stats.);
             return InteractionResult.CONSUME;
         }

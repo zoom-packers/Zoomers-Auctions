@@ -30,6 +30,7 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
     private SortableButton<AuctionItem> item;
     private SortableButton<AuctionItem> time;
     private SortableButton<AuctionItem> seller;
+    private SortableButton<AuctionItem> highestBidder;
     private SortableButton<AuctionItem> bid;
 
     private AuctionListWidget list;
@@ -57,45 +58,71 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
 
         if (leftPos >= 0 && topPos >= 0) {
 
-            time = new SortableButton<>(false, Comparator.comparing(AuctionItem::getTimeLeft), this.addRenderableWidget(Button.builder(Component.literal("Time -"),
-                    button -> {
-                        //button.setMessage(time.sortDirection("Time"));
-                        time.setActivated(true);
-                        item.setActivated(false);
-                        seller.setActivated(false);
-                        bid.setActivated(false);
-                    }).pos(leftPos + 242, topPos + 26).width(100).build()));
             item = new SortableButton<>(false, Comparator.comparing(auctionItem -> auctionItem.getAuctionItems().get(0).getHoverName().getString()),
                     this.addRenderableWidget(Button.builder(Component.literal("Item -"),
                                     button -> {
                                         //button.setMessage(item.sortDirection("Item"));
                                         time.setActivated(false);
+                                        highestBidder.setActivated(false);
                                         item.setActivated(true);
                                         seller.setActivated(false);
                                         bid.setActivated(false);
                                     })
-                            .pos(leftPos + 127, topPos + 26).width(115)
+                            .pos(leftPos + 3, topPos + 26)
+                            .width(139)
                             .build()));
-            seller = new SortableButton<>(false, Comparator.comparing(AuctionItem::getSeller), this.addRenderableWidget(Button.builder(Component.literal("Seller -"),
+            time = new SortableButton<>(false, Comparator.comparing(AuctionItem::getTimeLeft),
+                    this.addRenderableWidget(Button.builder(Component.literal("Time -"),
+                            button -> {
+                                //button.setMessage(time.sortDirection("Time"));
+                                time.setActivated(true);
+                                highestBidder.setActivated(false);
+                                item.setActivated(false);
+                                seller.setActivated(false);
+                                bid.setActivated(false);
+                            })
+                    .pos(leftPos + 141, topPos + 26)
+                    .width(100)
+                    .build()));
+            seller = new SortableButton<>(false, Comparator.comparing(AuctionItem::getSeller),
+                    this.addRenderableWidget(Button.builder(Component.literal("Seller -"),
                             button -> {
                                 //button.setMessage(seller.sortDirection("Seller"));
                                 seller.setActivated(true);
+                                highestBidder.setActivated(false);
                                 time.setActivated(false);
                                 item.setActivated(false);
                                 bid.setActivated(false);
 
                             })
-                    .pos(leftPos + 342, topPos + 26).width(100)
+                    .pos(leftPos + 241, topPos + 26)
+                    .width(100)
                     .build()));
-            bid = new SortableButton<>(false, Comparator.comparing(AuctionItem::getBuyoutPrice), this.addRenderableWidget(Button.builder(Component.literal("Price -"),
+            highestBidder = new SortableButton<>(false, Comparator.comparing(AuctionItem::getHighestBidder),
+                    this.addRenderableWidget(Button.builder(Component.literal("Highest Bidder -"),
+                            button -> {
+                                //button.setMessage(highestBidder.sortDirection("Highest Bidder"));
+                                highestBidder.setActivated(true);
+                                time.setActivated(false);
+                                item.setActivated(false);
+                                seller.setActivated(false);
+                                bid.setActivated(false);
+                            })
+                    .pos(leftPos + 341, topPos + 26)
+                    .width(100)
+                    .build()));
+            bid = new SortableButton<>(false, Comparator.comparing(AuctionItem::getBuyoutPrice),
+                    this.addRenderableWidget(Button.builder(Component.literal("Price -"),
                             button -> {
                                 //button.setMessage(bid.sortDirection("Buyout"));
                                 bid.setActivated(true);
+                                highestBidder.setActivated(false);
                                 time.setActivated(false);
                                 item.setActivated(false);
                                 seller.setActivated(false);
                             })
-                    .pos(leftPos + 442, topPos + 26).width(67)
+                    .pos(leftPos + 441, topPos + 26)
+                    .width(67)
                     .build()));
             this.list.addEntries(AuctionTheWorldAbstract.getInstance().getAuctionManager().getAuctions());
 

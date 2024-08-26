@@ -28,7 +28,7 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
     @Override
     protected void init() {
         super.init();
-        auctionMenuWidget.init(this, leftPos, topPos, font);
+//        auctionMenuWidget.init(this, leftPos, topPos, font);
     }
 
     public void addRenderableWidgetExternal(AbstractWidget button) {
@@ -49,7 +49,7 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
         if (leftPos >= 0 && topPos >= 0) {
             this.renderBackground(graphics);
             super.render(graphics, x, y, delta);
-            this.drawTitle(graphics, leftPos + 134, topPos + 10);
+            this.drawTitle(graphics, leftPos + 10, topPos + 10);
         } else {
             this.renderBackground(graphics);
             graphics.drawString(font, "Decrease your GUI scale to see the entire menu!",  50, 60, 0xFFFFFF);

@@ -349,4 +349,14 @@ public class AuctionItem implements TooltipComponent {
     public String getCurrency() {
         return currency;
     }
+
+    public String getHighestBidder() {
+        var hasBids = !bidStack.isEmpty();
+        if (!hasBids) {
+            return "No Bids";
+        }
+        var highestBid = bidStack.peek();
+        var user = AuctionTheWorldAbstract.userManager.getUserByID(highestBid.user());
+        return user.getName();
+    }
 }
