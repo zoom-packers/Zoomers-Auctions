@@ -99,7 +99,7 @@ public class AuctionBlock extends Block {
             AuctionTheWorldAbstract instance = AuctionTheWorldAbstract.getInstance();
             AuctionManager manager = instance.getAuctionManager();
             User user = instance.getUserManager().getUserByID(player.getUUID());
-            if (user.getLastReceivedAuctions() == null || user.getLastReceivedAuctions().isBefore(manager.getLastUpdated()) && !AuctionTheWorldAbstract.client) {
+            if (user.getLastReceivedAuctions() == null || user.getLastReceivedAuctions().isBefore(manager.getLastUpdated())) {
                 instance.getNetworking().sendToClient(new S2CSendAuctionListings(manager.getAuctionItemsByPage(user.getCurrentPage()), manager.getMaxPages(user.getCurrentPage())), (ServerPlayer) player);
                 user.setLastReceivedAuctions(Instant.now());
             }

@@ -192,12 +192,11 @@ public class AuctionManager {
             auctionItem.addBid(bid);
             auctionItem.addTime(ConfigBasics.INSTANCE.addTimeAfterBid > -1 ? ConfigBasics.INSTANCE.addTimeAfterBid : 0);
             lastUpdated = Instant.now();
-            if (!AuctionTheWorldAbstract.client && user.getPlayer() != null) {
-                // todo; update all players in the menu later
-                AuctionTheWorldAbstract.getInstance().getNetworking().sendToClient(new S2CAuctionUpdate(auctionItem), user.getPlayer());
-            } else {
-                for (Runnable auctionListener : AuctionTheWorldAbstract.auctionListeners) {
-                    auctionListener.run();
+            var playerMappings = AuctionTheWorldAbstract.getInstance().getUserManager().getPlayers();
+            for (var us : playerMappings.values()) {
+                var player = us.getPlayer();
+                if (player != null) {
+                    AuctionTheWorldAbstract.getInstance().getNetworking().sendToClient(new S2CAuctionUpdate(auctionItem), player);
                 }
             }
         }
