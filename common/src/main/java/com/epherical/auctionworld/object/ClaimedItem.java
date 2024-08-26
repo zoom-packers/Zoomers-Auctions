@@ -6,8 +6,6 @@ import net.minecraft.world.item.ItemStack;
 
 public record ClaimedItem(ClaimType type, ItemStack itemStack) {
 
-
-
     public enum ClaimType implements StringRepresentable {
         EXPIRED_LISTING("expired_listing", TextColor.parseColor("#f56642")),
         WON_LISTING("won_listing", TextColor.parseColor("#a1f542")),

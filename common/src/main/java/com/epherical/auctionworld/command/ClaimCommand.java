@@ -47,14 +47,12 @@ public class ClaimCommand {
                                 .then(Commands.literal("claim")
                                         .executes(ClaimCommand::listClaims)
                                         .then(Commands.argument("claim", IntegerArgumentType.integer(1))
-                                                .executes(ClaimCommand::claimItem)))
+                                                .executes(ClaimCommand::claimItems)))
                                 .then(Commands.literal("gen_auctions")
                                         .requires(commandSourceStack -> commandSourceStack.hasPermission(4))
                                         .executes(ClaimCommand::generateAuction))))
                 .then(Commands.literal("claim")
-                        .executes(ClaimCommand::listClaims)
-                        .then(Commands.argument("claim", IntegerArgumentType.integer(1))
-                                .executes(ClaimCommand::claimItem)))
+                        .executes(ClaimCommand::claimItems))
                 .then(Commands.literal("gen_auctions")
                         .requires(commandSourceStack -> commandSourceStack.hasPermission(4))
                         .executes(ClaimCommand::generateAuction)));
@@ -79,18 +77,20 @@ public class ClaimCommand {
         return 1;
     }
 
-    private static int claimItem(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        int claim = IntegerArgumentType.getInteger(context, "claim") - 1;
+    private static int claimItems(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
         AuctionTheWorldAbstract mod = AuctionTheWorldAbstract.getInstance();
         User user = mod.getUserManager().getUserByID(player.getUUID());
         NonNullList<ClaimedItem> items = user.getClaimedItems();
-        if (items.size() > claim) {
-            ClaimedItem claimedItem = user.getClaimedItems().get(claim);
-            // todo; write and validate
-
+        if (items.isEmpty()) {
+            player.sendSystemMessage(Component.translatable("You have no items to claim from auctions"));
+            return 1;
         }
-
+        for (ClaimedItem item : items) {
+            giveItemToPlayer(context, item.itemStack());
+            user.removeClaimedItems(item);
+            player.sendSystemMessage(Component.translatable("Claiming %s from auctions", item.itemStack().getHoverName()));
+        }
         return 1;
     }
 

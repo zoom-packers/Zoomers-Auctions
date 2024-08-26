@@ -290,4 +290,8 @@ public class User implements DelegatedContainer {
         // TODO: Implement this, gather all the currency in auctions
         return 0;
     }
+
+    public void removeClaimedItems(ClaimedItem item) {
+        claimedItems.remove(item);
+    }
 }
