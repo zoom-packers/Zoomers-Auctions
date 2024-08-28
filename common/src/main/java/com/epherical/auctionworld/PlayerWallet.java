@@ -10,7 +10,17 @@ import java.util.List;
 public class PlayerWallet {
     public List<WalletEntry> walletEntries = new ArrayList<>();
 
-    public record WalletEntry(String currency, int available, int inAuctions) {
+    public PlayerWallet() {
+        for (String currency : Config.INSTANCE.currencies) {
+            walletEntries.add(new WalletEntry(currency, 0, 0));
+        }
+    }
+
+    public class WalletEntry {
+        private String currency;
+        private int available;
+        private int inAuctions;
+
         public WalletEntry(String currency, int available, int inAuctions) {
             this.currency = currency;
             this.available = available;
@@ -24,10 +34,36 @@ public class PlayerWallet {
         public ItemStack getCurrencyItemStack() {
             return new ItemStack(Config.getCurrencyItem(currency));
         }
+
+        public String getCurrency() {
+            return currency;
+        }
+
+        public int getAvailable() {
+            return available;
+        }
+
+        public int getInAuctions() {
+            return inAuctions;
+        }
+
+        public void setAvailable(int available) {
+            this.available = available;
+        }
+
+        public void setInAuctions(int inAuctions) {
+            this.inAuctions = inAuctions;
+        }
     }
 
     public void update(PlayerWallet wallet) {
-        walletEntries = wallet.walletEntries;
+        for (WalletEntry entry : wallet.walletEntries) {
+            WalletEntry current = walletEntries.stream().filter(e -> e.currency.equals(entry.currency)).findFirst().orElse(null);
+            if (current != null) {
+                current.available = entry.available;
+                current.inAuctions = entry.inAuctions;
+            }
+        }
     }
 
     public void networkSerialize(FriendlyByteBuf buf) {
@@ -43,7 +79,14 @@ public class PlayerWallet {
         PlayerWallet wallet = new PlayerWallet();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
-            wallet.walletEntries.add(new WalletEntry(buf.readUtf(), buf.readInt(), buf.readInt()));
+            var currency = buf.readUtf();
+            var available = buf.readInt();
+            var inAuctions = buf.readInt();
+            var entry = wallet.walletEntries.stream().filter(e -> e.currency.equals(currency)).findFirst().orElse(null);
+            if (entry != null) {
+                entry.available = available;
+                entry.inAuctions = inAuctions;
+            }
         }
         return wallet;
     }

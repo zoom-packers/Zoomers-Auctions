@@ -65,6 +65,10 @@ public class ATWCommands {
 
     private static int openMenu(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayerOrException();
+        var mod = AuctionTheWorldAbstract.getInstance();
+        var userManager = mod.getUserManager();
+        var user = userManager.getUserByID(player.getUUID());
+        user.sendWalletData();
         player.openMenu(AuctionBlock.getMenuProviderGlobal());
         return 1;
     }

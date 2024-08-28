@@ -71,10 +71,10 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
         }
         for (int i = 0; i < walletEntries.size(); i++) {
             var walletEntry = walletEntries.get(i);
-            var currency = walletEntry.currency();
+            var currency = walletEntry.getCurrency();
             var currencyLabel = walletEntry.getCurrencyLabel();
-            var available = walletEntry.available();
-            var inAuctions = walletEntry.inAuctions();
+            var available = walletEntry.getAvailable();
+            var inAuctions = walletEntry.getInAuctions();
             var currencyItemStack = walletEntry.getCurrencyItemStack();
             var finalY = y + topOffset + (i * 20);
             var finalX = x + leftOffset;

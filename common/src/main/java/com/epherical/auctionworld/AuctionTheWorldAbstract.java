@@ -28,7 +28,7 @@ public class AuctionTheWorldAbstract {
     public static PlayerStorage playerStorage;
     public static AuctionManager auctionManager;
     public static UserManager userManager;
-    public static PlayerWallet playerWallet = new PlayerWallet();
+    public static PlayerWallet playerWallet;
 
     public static List<Runnable> auctionListeners = new ArrayList<>();
 
@@ -81,6 +81,7 @@ public class AuctionTheWorldAbstract {
                 S2CWalletUpdate::handle);
 
         Events.register();
+        playerWallet = new PlayerWallet();
     }
 
 

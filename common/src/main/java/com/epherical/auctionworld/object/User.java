@@ -313,9 +313,10 @@ public class User implements DelegatedContainer {
     public void sendWalletData() {
         var networking = AuctionTheWorldAbstract.getInstance().getNetworking();
         var wallet = new PlayerWallet();
-        wallet.walletEntries = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
-            wallet.walletEntries.add(new PlayerWallet.WalletEntry(entry.getKey(), entry.getValue(), getCurrencyInAuctions(entry.getKey())));
+            var walletEntry = wallet.walletEntries.stream().filter(e -> e.getCurrency().equals(entry.getKey())).findFirst().orElse(null);
+            walletEntry.setAvailable(entry.getValue());
+            walletEntry.setInAuctions(getCurrencyInAuctions(entry.getKey()));
         }
         networking.sendToClient(new S2CWalletUpdate(wallet), player);
     }
