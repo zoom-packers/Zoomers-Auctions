@@ -38,7 +38,9 @@ public class ATWCommands {
 
     public static void registerCommand(CommandDispatcher<CommandSourceStack> stack) {
         stack.register(Commands.literal("auctions")
-                .executes(ATWCommands::openMenu)
+                .then(Commands.literal("open")
+                    .requires(commandSourceStack -> commandSourceStack.hasPermission(4) || !Config.INSTANCE.disableOpenGuiCommandForNonAdmins)
+                    .executes(ATWCommands::openMenu))
                 .then(Commands.literal("wallet")
                         .executes(ATWCommands::walletBalance)
                         .then(Commands.literal("balance")

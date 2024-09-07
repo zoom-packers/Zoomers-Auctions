@@ -21,6 +21,7 @@ public class Config {
     public String[] currencies = new String[]{"minecraft:diamond", "minecraft:emerald", "minecraft:netherite_ingot"};
     public String[] currencyAliases = new String[]{"Diamond", "Emerald", "Netherite Ingot"};
     public Integer[] startingCurrencies = new Integer[]{64, 64, 64};
+    public boolean disableOpenGuiCommandForNonAdmins = true;
     public int listingFee = -1;
     public int addTimeAfterBid = -1;
 
