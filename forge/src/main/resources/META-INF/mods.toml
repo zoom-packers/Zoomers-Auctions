@@ -33,3 +33,18 @@ mandatory = true
 versionRange = "[9.2.14,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.auctionworld]]
+modId = "necronomicon"
+mandatory = true
+versionRange = "[1.4.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.auctionworld]]
+modId = "epherolib"
+mandatory = true
+versionRange = "[0.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
