@@ -2,6 +2,7 @@ package com.epherical.auctionworld.object;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.PlayerWallet;
+import com.epherical.auctionworld.WalletEntry;
 import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.networking.S2CWalletUpdate;
 import net.minecraft.core.NonNullList;
@@ -314,9 +315,8 @@ public class User implements DelegatedContainer {
         var networking = AuctionTheWorldAbstract.getInstance().getNetworking();
         var wallet = new PlayerWallet();
         for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
-            var walletEntry = wallet.walletEntries.stream().filter(e -> e.getCurrency().equals(entry.getKey())).findFirst().orElse(null);
-            walletEntry.setAvailable(entry.getValue());
-            walletEntry.setInAuctions(getCurrencyInAuctions(entry.getKey()));
+            var walletEntry = new WalletEntry(entry.getKey(), entry.getValue(), getCurrencyInAuctions(entry.getKey()));
+            wallet.walletEntries.add(walletEntry);
         }
         networking.sendToClient(new S2CWalletUpdate(wallet), player);
     }

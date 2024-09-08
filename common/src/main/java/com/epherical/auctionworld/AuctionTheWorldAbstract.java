@@ -81,7 +81,6 @@ public class AuctionTheWorldAbstract {
                 S2CWalletUpdate::handle);
 
         Events.register();
-        playerWallet = new PlayerWallet();
     }
 
 
@@ -103,5 +102,9 @@ public class AuctionTheWorldAbstract {
 
     public PlayerWallet getPlayerWallet() {
         return playerWallet;
+    }
+
+    public void setPlayerWallet(PlayerWallet playerWallet) {
+        AuctionTheWorldAbstract.playerWallet = playerWallet;
     }
 }

@@ -10,7 +10,8 @@ public record S2CWalletUpdate(PlayerWallet wallet) {
     public static void handle(S2CWalletUpdate wallet, AbstractNetworking.Context<?> context) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.execute(() -> {
-            AuctionTheWorldAbstract.getInstance().getPlayerWallet().update(wallet.wallet);
+            var mod = AuctionTheWorldAbstract.getInstance();
+            mod.setPlayerWallet(wallet.wallet());
         });
     }
 

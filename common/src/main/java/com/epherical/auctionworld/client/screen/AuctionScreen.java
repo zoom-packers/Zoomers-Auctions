@@ -2,6 +2,7 @@ package com.epherical.auctionworld.client.screen;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.PlayerWallet;
+import com.epherical.auctionworld.WalletEntry;
 import com.epherical.auctionworld.client.widgets.AuctionBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import net.minecraft.client.Minecraft;
@@ -65,7 +66,7 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
         var wallet = AuctionTheWorldAbstract.getInstance().getPlayerWallet();
         var topOffset = 356;
         var leftOffset = 10;
-        List<PlayerWallet.WalletEntry> walletEntries = wallet.walletEntries;
+        List<WalletEntry> walletEntries = wallet.walletEntries;
         if (walletEntries.isEmpty()) {
             return;
         }

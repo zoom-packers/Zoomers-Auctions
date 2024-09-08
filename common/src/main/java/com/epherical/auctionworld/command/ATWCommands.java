@@ -160,12 +160,9 @@ public class ATWCommands {
                 currency = c;
                 break;
             }
-        }
-
-        for (var c : Config.INSTANCE.currencyAliases) {
-            if (c.toLowerCase().equals(currencyText)) {
+            if (Config.getAlias(c).toLowerCase().equals(currencyText)) {
                 foundCurrency = true;
-                currency = Config.INSTANCE.currencies[Arrays.asList(Config.INSTANCE.currencyAliases).indexOf(c)];
+                currency = c;
                 break;
             }
         }

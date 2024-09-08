@@ -79,11 +79,10 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
         addRenderableWidget(browseAuctions);
 
         var currencies = Config.INSTANCE.currencies;
-        var aliases = Config.INSTANCE.currencyAliases;
         var options = new ArrayList<SelectionButton>();
         for (int i = 0; i < currencies.length; i++) {
             var currency = currencies[i];
-            var alias = aliases[i];
+            var alias = Config.getAlias(currency);
             options.add(new SelectionButton(currency, alias, button -> {
                 currencySelected = currency;
             }));
