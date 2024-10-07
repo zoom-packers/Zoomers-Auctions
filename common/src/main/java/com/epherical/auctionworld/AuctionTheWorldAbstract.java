@@ -4,12 +4,16 @@ import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
+import com.epherical.auctionworld.integrations.dcm.DotCoinModIntegration;
 import com.epherical.auctionworld.networking.*;
 import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.object.AuctionItem;
 import com.epherical.epherolib.networking.AbstractNetworking;
+import dev.architectury.platform.Platform;
 import elocindev.necronomicon.api.config.v1.NecConfigAPI;
 import net.minecraft.resources.ResourceLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.List;
 public class AuctionTheWorldAbstract {
 
     public static final ResourceLocation MOD_CHANNEL = new ResourceLocation(Constants.MOD_ID, "packets");
+    public static final Logger LOGGER = LoggerFactory.getLogger("auctionworld");
 
     public static boolean client = false;
 
@@ -35,6 +40,7 @@ public class AuctionTheWorldAbstract {
     public AuctionTheWorldAbstract(AbstractNetworking net) {
         mod = this;
         NecConfigAPI.registerConfig(Config.class);
+        detectDotCoinAndEnableIntegration();
         networking = net;
         Registry.bootstrap();
 
@@ -81,6 +87,12 @@ public class AuctionTheWorldAbstract {
                 S2CWalletUpdate::handle);
 
         Events.register();
+    }
+
+    private void detectDotCoinAndEnableIntegration() {
+        if (Platform.isModLoaded("dotcoinmod")) {
+            DotCoinModIntegration.initDotcoinModIntegration();
+        }
     }
 
 

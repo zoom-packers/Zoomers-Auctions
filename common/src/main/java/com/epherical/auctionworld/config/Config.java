@@ -23,6 +23,7 @@ public class Config {
     public boolean disableOpenGuiCommandForNonAdmins = true;
     public int listingFee = -1;
     public int addTimeAfterBid = -1;
+    public boolean dotcoinModIntegration = true;
 
     public static Item getCurrencyItem(String currency) {
         var resourceLocation = new ResourceLocation(currency);

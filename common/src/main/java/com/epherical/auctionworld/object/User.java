@@ -4,6 +4,7 @@ import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.PlayerWallet;
 import com.epherical.auctionworld.WalletEntry;
 import com.epherical.auctionworld.config.Config;
+import com.epherical.auctionworld.integrations.dcm.DotCoinModIntegration;
 import com.epherical.auctionworld.networking.S2CWalletUpdate;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -216,6 +217,10 @@ public class User implements DelegatedContainer {
     }
 
     public int insertCurrency(ItemStack item) {
+        if (DotCoinModIntegration.enabled) {
+            DotCoinModIntegration.addCurrency(player, Config.getCurrencyForItem(item.getItem()), item.getCount());
+            return 0;
+        }
         if (!item.isEmpty()) {
 
             int itemsInserted = item.getCount();
@@ -243,11 +248,10 @@ public class User implements DelegatedContainer {
         this.player = player;
     }
 
-    public boolean hasEnough(String currency, int needed)  {
-        return this.currencyMap.get(currency) >= needed;
-    }
-
     public int getCurrencyAmount(String currency) {
+        if (DotCoinModIntegration.enabled) {
+            return DotCoinModIntegration.getCurrencyAmount(player, currency);
+        }
         if (!this.currencyMap.containsKey(currency)) {
             this.currencyMap.put(currency, 0);
         }
@@ -259,10 +263,32 @@ public class User implements DelegatedContainer {
     }
 
     public void removeCurrency(String currency, int amountToTake) {
+        if (DotCoinModIntegration.enabled) {
+            if (player != null) {
+                DotCoinModIntegration.removeCurrency(player, currency, amountToTake);
+            } else {
+                if (!this.currencyMap.containsKey(currency)) {
+                    this.currencyMap.put(currency, 0);
+                }
+                this.currencyMap.put(currency, this.currencyMap.get(currency) - amountToTake);
+            }
+            return;
+        }
         this.currencyMap.put(currency, this.currencyMap.get(currency) - amountToTake);
     }
 
     public void addCurrency(String currency, int amountToAdd) {
+        if (DotCoinModIntegration.enabled) {
+            if (player != null) {
+                DotCoinModIntegration.addCurrency(player, currency, amountToAdd);
+            } else {
+                if (!this.currencyMap.containsKey(currency)) {
+                    this.currencyMap.put(currency, 0);
+                }
+                this.currencyMap.put(currency, this.currencyMap.get(currency) + amountToAdd);
+            }
+            return;
+        }
         this.currencyMap.put(currency, this.currencyMap.get(currency) + amountToAdd);
     }
 
@@ -312,12 +338,38 @@ public class User implements DelegatedContainer {
     }
 
     public void sendWalletData() {
+        if (player == null) {
+            return;
+        }
         var networking = AuctionTheWorldAbstract.getInstance().getNetworking();
         var wallet = new PlayerWallet();
         for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
-            var walletEntry = new WalletEntry(entry.getKey(), entry.getValue(), getCurrencyInAuctions(entry.getKey()));
+            var walletEntry = new WalletEntry(entry.getKey(), getCurrencyAmount(entry.getKey()), getCurrencyInAuctions(entry.getKey()));
             wallet.walletEntries.add(walletEntry);
         }
         networking.sendToClient(new S2CWalletUpdate(wallet), player);
+    }
+
+    public void onPlayerJoin() {
+        AuctionTheWorldAbstract.LOGGER.info("Handling player join for " + name);
+        if (DotCoinModIntegration.enabled) {
+            // Re-add the currency to the player's inventory
+            for (Map.Entry<String, Integer> entry : currencyMap.entrySet()) {
+                var currency = entry.getKey();
+                var amount = entry.getValue();
+                if (amount > 0) {
+                    DotCoinModIntegration.addCurrency(player, currency, amount);
+                    currencyMap.put(currency, 0);
+                    AuctionTheWorldAbstract.LOGGER.info("Added " + amount + " " + currency + " to " + player.getName().getString());
+                } else if (amount < 0) {
+                    DotCoinModIntegration.removeCurrency(player, currency, -amount);
+                    currencyMap.put(currency, 0);
+                    AuctionTheWorldAbstract.LOGGER.info("Removed " + -amount + " " + currency + " from " + player.getName().getString());
+                }
+            }
+        }
+
+        // Send the wallet data to the player
+        sendWalletData();
     }
 }

@@ -7,6 +7,7 @@ import com.epherical.auctionworld.menu.CreateAuctionMenu;
 import com.epherical.auctionworld.menu.slot.SelectableSlot;
 import com.epherical.auctionworld.networking.CreateAuctionListing;
 import com.epherical.auctionworld.networking.OpenCreateAuction;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.network.chat.CommonComponents;
@@ -169,43 +170,76 @@ public class CreateAuctionScreen extends AuctionScreen<CreateAuctionMenu> {
         int time;
         if (timeUnit == 'd') {
             String value = timeSelection.getValue();
+            if (value.isEmpty()) {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Time is empty"));
+                return;
+            }
             time = Integer.parseInt(value);
             if (time > 7) {
-                // todo; maybe send error msg in screen
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Max days is 7"));
                 return;
             }
             time *= 24;
             time *= 60;
         } else if (timeUnit == 'h') {
             String value = timeSelection.getValue();
+            if (value.isEmpty()) {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Time is empty"));
+                return;
+            }
             time = Integer.parseInt(value);
             if (time > 168) {
-                // todo; maybe send error msg in screen
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Max hours is 168"));
                 return;
             }
             time *= 60;
         } else if (timeUnit == 'm') {
             String value = timeSelection.getValue();
+            if (value.isEmpty()) {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Time is empty"));
+                return;
+            }
             time = Integer.parseInt(value);
             if (time > 1080) {
-                // todo; maybe send error msg in screen
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Max minutes is 1080"));
                 return;
             }
         } else {
-            // todo; maybe send error msg in screen
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid time unit"));
             return;
         }
 
         if (startingBid.getValue().isEmpty()) {
-            // todo; maybe send error msg in screen
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Starting bid is empty"));
             return;
         }
-        int start = Integer.parseInt(startingBid.getValue());
+        String startingBidValue = startingBid.getValue();
+        if (startingBidValue.length() > 9) {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Max starting bid is 999999999"));
+            return;
+        }
+        int start = Integer.parseInt(startingBidValue);
         int buyout = -1;
         if (!buyoutPrice.getValue().isEmpty()) {
             buyout = Integer.parseInt(buyoutPrice.getValue());
         }
         String currency = currencySelected;
+        if (currency.isEmpty()) {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Please select a currency"));
+            return;
+        }
+
+        var foundCurrency = false;
+        for (String c : Config.INSTANCE.currencies) {
+            if (c.equals(currency)) {
+                foundCurrency = true;
+                break;
+            }
+        }
+        if (!foundCurrency) {
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid currency"));
+            return;
+        }
 
 
         AuctionTheWorldAbstract.getInstance().getNetworking().sendToServer(new CreateAuctionListing(time, start, buyout, currency));

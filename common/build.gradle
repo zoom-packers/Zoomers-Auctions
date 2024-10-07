@@ -21,4 +21,5 @@ dependencies {
     modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
     modImplementation "curse.maven:epherolib-885449:4949797"
     modImplementation "curse.maven:necronomicon-586157:5091307"
+    modImplementation "curse.maven:dot-coin-mod-fabric-817129:5575644"
 }

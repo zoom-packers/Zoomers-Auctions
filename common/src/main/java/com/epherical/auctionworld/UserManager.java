@@ -35,9 +35,11 @@ public class UserManager {
             user.setPlayer(player);
             players.put(player.getUUID(), user);
             playerStorage.savePlayer(user);
-            user.sendWalletData();
+            user.onPlayerJoin();
         } else {
-            getUserByID(player.getUUID()).setPlayer(player);
+            var user = getUserByID(player.getUUID());
+            user.setPlayer(player);
+            user.onPlayerJoin();
         }
     }
 
