@@ -54,6 +54,10 @@ public class UserManager {
         playerStorage.saveAllPlayers(players);
     }
 
+    public void savePlayer(User user) {
+        playerStorage.savePlayer(user);
+    }
+
     public void playerLeft(ServerPlayer player) {
         User userByID = getUserByID(player.getUUID());
         playerStorage.savePlayer(userByID);

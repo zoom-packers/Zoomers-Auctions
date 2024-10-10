@@ -162,6 +162,7 @@ public class AuctionManager {
         for (Runnable auctionListener : AuctionTheWorldAbstract.auctionListeners) {
             auctionListener.run();
         }
+        saveAuctionItems();
     }
 
     public AuctionItem getAuctionItem(UUID auctionId) {
@@ -204,6 +205,7 @@ public class AuctionManager {
         sendMessagesToOutbiddedPlayers(auctionItem);
         sendNetworkUpdates(auctionItem);
         // TODO: Send Wallet Update
+        saveAuctionItems();
     }
 
     private int getRequiredAmountForBid(User user, AuctionItem auctionItem, int bidAmount) {
@@ -248,6 +250,7 @@ public class AuctionManager {
         if (storage.saveAuctionItems(auctions)) {
             LOGGER.info("Saved All Auction Items");
         }
+        userManager.saveAllPlayers();
     }
 
     /**
@@ -265,6 +268,7 @@ public class AuctionManager {
             addAuctionItem(currency, auctionItems, auctionStarted, timeLeft, currentPrice, buyoutPrice, seller, sellerID);
         }
         lastUpdated = Instant.now();
+        saveAuctionItems();
     }
 
     public Instant getLastUpdated() {
@@ -288,14 +292,5 @@ public class AuctionManager {
 
     public int getMaxPages(Page page) {
         return auctionList.isEmpty() ? 1 : page.getMaxPages(auctionList.size());
-    }
-
-    public void setAuctionItems(List<AuctionItem> items) {
-        this.auctionList.clear();
-        this.auctions.clear();
-        for (AuctionItem item : items) {
-            this.auctionList.add(item);
-            auctions.put(item.getAuctionID(), item);
-        }
     }
 }
