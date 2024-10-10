@@ -39,7 +39,7 @@ public record CreateAuctionListing(int timeInMinutes, int startPrice, int buyout
             player.sendSystemMessage(Component.literal("You must have at least one item in the auction listing."));
             return;
         }
-        AuctionManager auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager();
+        AuctionManager auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager(false);
         auctionManager.addAuctionItem(listing.currency(), itemStacks, Instant.now(), Duration.ofMinutes(listing.timeInMinutes).getSeconds(),
                 listing.startPrice, listing.buyoutPrice, player.getScoreboardName(), player.getUUID());
         player.closeContainer();

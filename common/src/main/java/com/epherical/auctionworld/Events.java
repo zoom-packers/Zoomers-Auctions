@@ -18,18 +18,18 @@ public class Events {
             AuctionTheWorldAbstract.auctionStorage = new FlatAuctionStorage(LevelResource.ROOT, server, "epherical/auctiontw");
             AuctionTheWorldAbstract.playerStorage = new FlatPlayerStorage(LevelResource.ROOT, server, "epherical/auctiontw/players");
             AuctionTheWorldAbstract.userManager = new UserManager(AuctionTheWorldAbstract.playerStorage);
-            AuctionTheWorldAbstract.auctionManager = new AuctionManager(AuctionTheWorldAbstract.auctionStorage, false, AuctionTheWorldAbstract.userManager);
+            AuctionTheWorldAbstract.serverAuctionManager = new AuctionManager(AuctionTheWorldAbstract.auctionStorage, false, AuctionTheWorldAbstract.userManager);
             AuctionTheWorldAbstract.userManager.loadPlayers();
         });
 
         LifecycleEvent.SERVER_STOPPING.register(server -> {
-            AuctionTheWorldAbstract.auctionManager.saveAuctionItems();
-            AuctionTheWorldAbstract.auctionManager.stop();
+            AuctionTheWorldAbstract.serverAuctionManager.saveAuctionItems();
+            AuctionTheWorldAbstract.serverAuctionManager.stop();
         });
 
         LifecycleEvent.SERVER_STOPPED.register(server -> {
             if (AuctionTheWorldAbstract.client) {
-                AuctionTheWorldAbstract.auctionManager = new AuctionManager(null, true, null); // just in case for client players playing in SP then joining MP later?
+                AuctionTheWorldAbstract.serverAuctionManager = new AuctionManager(null, false, null); // just in case for client players playing in SP then joining MP later?
             }
         });
 

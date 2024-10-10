@@ -2,7 +2,6 @@ package com.epherical.auctionworld.fabric.client;
 
 import com.epherical.auctionworld.AuctionManager;
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
-import com.epherical.auctionworld.client.AModClient;
 import com.epherical.auctionworld.client.screen.*;
 import com.epherical.auctionworld.client.tooltip.BiddingTooltipClientComponent;
 import com.epherical.auctionworld.object.AuctionItem;
@@ -16,7 +15,7 @@ public final class auctionworldFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         AuctionTheWorldAbstract.client = true;
-        AuctionTheWorldAbstract.auctionManager = new AuctionManager(null, true, null);
+        AuctionTheWorldAbstract.clientAuctionManager = new AuctionManager(null, true, null);
 
         MenuScreens.register(Registry.BROWSE_AUCTION_MENU, BrowseAuctionScreen::new);
         MenuScreens.register(Registry.CREATE_AUCTION_MENU, CreateAuctionScreen::new);

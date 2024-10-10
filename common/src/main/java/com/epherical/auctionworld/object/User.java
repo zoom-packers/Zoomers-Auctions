@@ -314,7 +314,7 @@ public class User implements DelegatedContainer {
     }
 
     public int getCurrencyInAuctions(String currency) {
-        var auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager();
+        var auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager(false);
         var auctions = auctionManager.getAuctions();
         int amount = 0;
         for (AuctionItem auction : auctions) {
@@ -371,5 +371,9 @@ public class User implements DelegatedContainer {
 
         // Send the wallet data to the player
         sendWalletData();
+    }
+
+    public void onPlayerLeave() {
+        lastReceivedAuctions = null;;
     }
 }

@@ -18,15 +18,13 @@ public record C2SPageChange(int newPage) {
             if (listing.newPage <= 0) {
                 page = 1;
             }
-            AuctionManager aucManager = mod.getAuctionManager();
+            AuctionManager aucManager = mod.getAuctionManager(false);
             user.setCurrentPage(new Page(page, 10));
-            if (!AuctionTheWorldAbstract.client) {
-                mod.getNetworking().sendToClient(
-                        new S2CSendAuctionListings(
-                                aucManager.getAuctionItemsByPage(user.getCurrentPage()),
-                                aucManager.getMaxPages(user.getCurrentPage())
-                        ), player);
-            }
+            mod.getNetworking().sendToClient(
+                    new S2CSendAuctionListings(
+                            aucManager.getAuctionItemsByPage(user.getCurrentPage()),
+                            aucManager.getMaxPages(user.getCurrentPage())
+                    ), player);
 
         });
     }

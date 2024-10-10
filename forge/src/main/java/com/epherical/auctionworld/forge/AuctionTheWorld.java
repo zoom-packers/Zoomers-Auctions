@@ -25,7 +25,7 @@ public class AuctionTheWorld {
         eventBus.addListener(this::commonInit);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> {
             AuctionTheWorldAbstract.client = true;
-            AuctionTheWorldAbstract.auctionManager = new AuctionManager(null, true, null);
+            AuctionTheWorldAbstract.clientAuctionManager = new AuctionManager(null, true, null);
             eventBus.addListener(AModClient::tooltipRegister);
             return AModClient::initClient;
         });

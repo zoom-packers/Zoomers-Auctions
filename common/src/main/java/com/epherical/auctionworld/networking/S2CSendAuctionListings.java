@@ -1,5 +1,6 @@
 package com.epherical.auctionworld.networking;
 
+import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.client.AModClient;
 import com.epherical.auctionworld.client.screen.BrowseAuctionScreen;
 import com.epherical.auctionworld.object.AuctionItem;

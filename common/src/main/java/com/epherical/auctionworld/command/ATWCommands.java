@@ -77,7 +77,7 @@ public class ATWCommands {
 
     private static int generateAuction(CommandContext<CommandSourceStack> context) {
         AuctionTheWorldAbstract mod = AuctionTheWorldAbstract.getInstance();
-        AuctionManager manager = mod.getAuctionManager();
+        AuctionManager manager = mod.getAuctionManager(false);
         for (int i = 0; i < 10; i++) {
             try {
                 RandomSource random = context.getSource().getPlayerOrException().getRandom();

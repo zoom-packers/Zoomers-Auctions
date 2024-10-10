@@ -131,7 +131,7 @@ public class BrowseAuctionScreen extends AuctionScreen<BrowseAuctionMenu> {
                     .pos(leftPos + 441, topPos + 26)
                     .width(66)
                     .build()));
-            this.list.addEntries(AuctionTheWorldAbstract.getInstance().getAuctionManager().getAuctions());
+            this.list.addEntries(AuctionTheWorldAbstract.getInstance().getAuctionManager(true).getAuctions());
 
 
             AbstractNetworking<?, ?> networking = AuctionTheWorldAbstract.getInstance().getNetworking();

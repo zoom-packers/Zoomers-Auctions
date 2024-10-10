@@ -31,7 +31,8 @@ public class AuctionTheWorldAbstract {
     public static AbstractNetworking<?, ?> networking;
     public static AuctionStorage auctionStorage;
     public static PlayerStorage playerStorage;
-    public static AuctionManager auctionManager;
+    public static AuctionManager serverAuctionManager;
+    public  static AuctionManager clientAuctionManager;
     public static UserManager userManager;
     public static PlayerWallet playerWallet;
 
@@ -66,10 +67,10 @@ public class AuctionTheWorldAbstract {
             friendlyByteBuf.writeUUID(userSubmitBuyout.listing());
         }, friendlyByteBuf -> new UserSubmitBuyout(friendlyByteBuf.readUUID()), UserSubmitBuyout::handle);
         networking.registerServerToClient(id++, S2CSendAuctionListings.class, (s2CSendAuctionListings, friendlyByteBuf) -> {
-            auctionManager.networkSerializeAuctions(friendlyByteBuf, s2CSendAuctionListings);
+            serverAuctionManager.networkSerializeAuctions(friendlyByteBuf, s2CSendAuctionListings);
             friendlyByteBuf.writeInt(s2CSendAuctionListings.maxPages());
         }, friendlyByteBuf -> {
-            List<AuctionItem> auctionItems = auctionManager.networkDeserialize(friendlyByteBuf);
+            List<AuctionItem> auctionItems = clientAuctionManager.networkDeserialize(friendlyByteBuf);
             int maxPages = friendlyByteBuf.readInt();
             return new S2CSendAuctionListings(auctionItems, maxPages);
         }, S2CSendAuctionListings::handle);
@@ -100,8 +101,8 @@ public class AuctionTheWorldAbstract {
         return mod;
     }
 
-    public AuctionManager getAuctionManager() {
-        return auctionManager;
+    public AuctionManager getAuctionManager(boolean client) {
+        return client ? clientAuctionManager : serverAuctionManager;
     }
 
     public UserManager getUserManager() {

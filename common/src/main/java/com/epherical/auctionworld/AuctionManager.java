@@ -289,4 +289,13 @@ public class AuctionManager {
     public int getMaxPages(Page page) {
         return auctionList.isEmpty() ? 1 : page.getMaxPages(auctionList.size());
     }
+
+    public void setAuctionItems(List<AuctionItem> items) {
+        this.auctionList.clear();
+        this.auctions.clear();
+        for (AuctionItem item : items) {
+            this.auctionList.add(item);
+            auctions.put(item.getAuctionID(), item);
+        }
+    }
 }

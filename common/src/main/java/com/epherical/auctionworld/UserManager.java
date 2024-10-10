@@ -58,6 +58,7 @@ public class UserManager {
         User userByID = getUserByID(player.getUUID());
         playerStorage.savePlayer(userByID);
         userByID.setPlayer(null);
+        userByID.onPlayerLeave();
     }
 
     public PlayerStorage getPlayerStorage() {

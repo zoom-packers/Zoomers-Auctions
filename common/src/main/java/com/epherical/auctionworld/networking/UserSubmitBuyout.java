@@ -16,7 +16,7 @@ public record UserSubmitBuyout(UUID listing) {
             player.getServer().execute(() -> {
                 AuctionTheWorldAbstract instance = AuctionTheWorldAbstract.getInstance();
                 UserManager userManager = instance.getUserManager();
-                instance.getAuctionManager().userBuyOut(userManager.getUserByID(player.getUUID()), bid.listing);
+                instance.getAuctionManager(false).userBuyOut(userManager.getUserByID(player.getUUID()), bid.listing);
             });
         }
     }

@@ -16,7 +16,7 @@ public record UserSubmitBid(UUID listing, int bidAmount) {
             player.getServer().execute(() -> {
                 AuctionTheWorldAbstract instance = AuctionTheWorldAbstract.getInstance();
                 UserManager userManager = instance.getUserManager();
-                instance.getAuctionManager().userBid(userManager.getUserByID(player.getUUID()), bid.listing, bid.bidAmount);
+                instance.getAuctionManager(false).userBid(userManager.getUserByID(player.getUUID()), bid.listing, bid.bidAmount);
             });
 
         }
