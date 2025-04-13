@@ -2,15 +2,9 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
-loom {
-    forge {
-        mixinConfig "auctionworld.mixins.json"
-    }
-}
-
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge()
 }
 
 configurations {
@@ -20,7 +14,7 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
     // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
@@ -32,26 +26,30 @@ configurations {
 
 repositories {
     maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+    maven {
         url "https://cursemaven.com"
     }
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:$rootProject.forge_version"
+    neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
 
-    modImplementation "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
-    modImplementation "curse.maven:epherolib-885449:4889101"
-    modImplementation "curse.maven:necronomicon-586157:5091310"
-    modImplementation"curse.maven:dotcoin-mod-458261:5575654"
+    modImplementation "dev.architectury:architectury-neoforge:$rootProject.architectury_api_version"
+    modImplementation "curse.maven:epherolib-885449:5872111"
+    modImplementation "curse.maven:necronomicon-586157:5772683"
+//    modImplementation"curse.maven:dotcoin-mod-458261:5575654" // Not updated to 1.21.1 yet
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
-    shadowBundle project(path: ':common', configuration: 'transformProductionForge')
+    shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
 
 processResources {
     inputs.property 'version', project.version
 
-    filesMatching('META-INF/mods.toml') {
+    filesMatching('META-INF/neoforge.neoforge.mods.toml') {
         expand version: project.version
     }
 }

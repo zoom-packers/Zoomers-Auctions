@@ -11,4 +11,4 @@ rootProject.name = 'auctionworld'
 
 include 'common'
 include 'fabric'
-include 'forge'
+include 'neoforge'

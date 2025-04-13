@@ -19,7 +19,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
     modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
-    modImplementation "curse.maven:epherolib-885449:4949797"
-    modImplementation "curse.maven:necronomicon-586157:5091307"
-    modImplementation "curse.maven:dot-coin-mod-fabric-817129:5575644"
+    modImplementation "curse.maven:epherolib-885449:6379763"
+    modImplementation "curse.maven:necronomicon-586157:5772684"
+//    modImplementation "curse.maven:dot-coin-mod-fabric-817129:5575644" // Not updated to 1.21.1 yet
 }
