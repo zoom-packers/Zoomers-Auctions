@@ -26,7 +26,7 @@ public class Config {
     public boolean dotcoinModIntegration = true;
 
     public static Item getCurrencyItem(String currency) {
-        var resourceLocation = new ResourceLocation(currency);
+        var resourceLocation = ResourceLocation.parse(currency);
         return BuiltInRegistries.ITEM.get(resourceLocation);
     }
 

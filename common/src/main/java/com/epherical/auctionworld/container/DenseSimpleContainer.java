@@ -109,7 +109,7 @@ public class DenseSimpleContainer implements Container, StackedContentsCompatibl
         boolean flag = false;
 
         for(ItemStack itemstack : this.items) {
-            if (itemstack.isEmpty() || ItemStack.isSameItemSameTags(itemstack, stack) && itemstack.getCount() < itemstack.getMaxStackSize()) {
+            if (itemstack.isEmpty() || ItemStack.isSameItemSameComponents(itemstack, stack) && itemstack.getCount() < itemstack.getMaxStackSize()) {
                 flag = true;
                 break;
             }
@@ -192,7 +192,7 @@ public class DenseSimpleContainer implements Container, StackedContentsCompatibl
     private void moveItemToOccupiedSlotsWithSameType(ItemStack stack) {
         for(int i = 0; i < this.size; ++i) {
             ItemStack itemstack = this.getItem(i);
-            if (ItemStack.isSameItemSameTags(itemstack, stack)) {
+            if (ItemStack.isSameItemSameComponents(itemstack, stack)) {
                 this.moveItemsBetweenStacks(stack, itemstack);
                 if (stack.isEmpty()) {
                     return;

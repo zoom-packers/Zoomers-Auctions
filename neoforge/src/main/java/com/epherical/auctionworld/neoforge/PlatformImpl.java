@@ -1,4 +1,4 @@
-package com.epherical.auctionworld.forge;
+package com.epherical.auctionworld.neoforge;
 
 public class PlatformImpl {
 }

@@ -1,4 +1,4 @@
-package com.epherical.auctionworld.forge.client;
+package com.epherical.auctionworld.neoforge.client;
 
 import com.epherical.auctionworld.AuctionTheWorldAbstract;
 import com.epherical.auctionworld.Constants;

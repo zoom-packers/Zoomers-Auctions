@@ -31,13 +31,13 @@ public class Registry {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Constants.MOD_ID, Registries.ITEM);
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Constants.MOD_ID, Registries.MENU);
 
-    public static final RegistrySupplier<Block> AUCTION_HOUSE_SUPPLIER = BLOCKS.register(new ResourceLocation(Constants.MOD_ID, "auction_house"), () -> new AuctionBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()));
-    public static final RegistrySupplier<Item> AUCTION_HOUSE_ITEM_SUPPLIER = ITEMS.register(new ResourceLocation(Constants.MOD_ID, "auction_house"), () -> new ItemNameBlockItem(AUCTION_HOUSE_SUPPLIER.get(), new Item.Properties()));
-    public static final RegistrySupplier<MenuType<BrowseAuctionMenu>> BROWSE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "browse_auction_menu"), () -> BROWSE_AUCTION_MENU);
-    public static final RegistrySupplier<MenuType<CreateAuctionMenu>> CREATE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "create_auction_menu"), () -> CREATE_AUCTION_MENU);
-    public static final RegistrySupplier<MenuType<WalletManagementMenu>> WALLET_MANAGEMENT_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "wallet_management_menu"), () -> WALLET_MANAGEMENT_MENU);
-    public static final RegistrySupplier<MenuType<AuctionOwnerMenu>> AUCTION_OWNER_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "auction_owner_menu"), () -> AUCTION_OWNER_MENU);
-    public static final RegistrySupplier<MenuType<AuctionParticipationMenu>> AUCTION_PARTICIPATION_MENU_SUPPLIER = MENU_TYPES.register(new ResourceLocation(Constants.MOD_ID, "auction_participation_menu"), () -> AUCTION_PARTICIPATION_MENU);
+    public static final RegistrySupplier<Block> AUCTION_HOUSE_SUPPLIER = BLOCKS.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "auction_house"), () -> new AuctionBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()));
+    public static final RegistrySupplier<Item> AUCTION_HOUSE_ITEM_SUPPLIER = ITEMS.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "auction_house"), () -> new ItemNameBlockItem(AUCTION_HOUSE_SUPPLIER.get(), new Item.Properties()));
+    public static final RegistrySupplier<MenuType<BrowseAuctionMenu>> BROWSE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "browse_auction_menu"), () -> BROWSE_AUCTION_MENU);
+    public static final RegistrySupplier<MenuType<CreateAuctionMenu>> CREATE_AUCTION_MENU_SUPPLIER = MENU_TYPES.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "create_auction_menu"), () -> CREATE_AUCTION_MENU);
+    public static final RegistrySupplier<MenuType<WalletManagementMenu>> WALLET_MANAGEMENT_MENU_SUPPLIER = MENU_TYPES.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "wallet_management_menu"), () -> WALLET_MANAGEMENT_MENU);
+    public static final RegistrySupplier<MenuType<AuctionOwnerMenu>> AUCTION_OWNER_MENU_SUPPLIER = MENU_TYPES.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "auction_owner_menu"), () -> AUCTION_OWNER_MENU);
+    public static final RegistrySupplier<MenuType<AuctionParticipationMenu>> AUCTION_PARTICIPATION_MENU_SUPPLIER = MENU_TYPES.register(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "auction_participation_menu"), () -> AUCTION_PARTICIPATION_MENU);
 
     public static void bootstrap() {
         BLOCKS.register();
@@ -46,6 +46,6 @@ public class Registry {
     }
 
     public static ResourceLocation id(String value) {
-        return new ResourceLocation(Constants.MOD_ID, value);
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, value);
     }
 }

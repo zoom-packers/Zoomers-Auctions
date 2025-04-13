@@ -1,4 +1,4 @@
-package com.epherical.auctionworld.forge.listener;
+package com.epherical.auctionworld.neoforge.listener;
 
 import com.epherical.auctionworld.data.AuctionFilterManager;
 import net.minecraft.core.registries.Registries;

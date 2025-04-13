@@ -4,7 +4,6 @@ import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
 import com.epherical.auctionworld.config.Config;
 import com.epherical.auctionworld.data.AuctionStorage;
 import com.epherical.auctionworld.data.PlayerStorage;
-import com.epherical.auctionworld.integrations.dcm.DotCoinModIntegration;
 import com.epherical.auctionworld.networking.*;
 import com.epherical.auctionworld.registry.Registry;
 import com.epherical.auctionworld.object.AuctionItem;
@@ -21,7 +20,7 @@ import java.util.List;
 //@Mod(Constants.MOD_ID)
 public class AuctionTheWorldAbstract {
 
-    public static final ResourceLocation MOD_CHANNEL = new ResourceLocation(Constants.MOD_ID, "packets");
+    public static final ResourceLocation MOD_CHANNEL = ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "packets");
     public static final Logger LOGGER = LoggerFactory.getLogger("auctionworld");
 
     public static boolean client = false;
@@ -92,7 +91,7 @@ public class AuctionTheWorldAbstract {
 
     private void detectDotCoinAndEnableIntegration() {
         if (Platform.isModLoaded("dotcoinmod")) {
-            DotCoinModIntegration.initDotcoinModIntegration();
+//            DotCoinModIntegration.initDotcoinModIntegration();
         }
     }
 
