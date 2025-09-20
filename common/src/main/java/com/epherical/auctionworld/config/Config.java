@@ -24,6 +24,7 @@ public class Config {
     public int listingFee = -1;
     public int addTimeAfterBid = -1;
     public boolean dotcoinModIntegration = true;
+    public boolean useDefaultDotCoinEconomy = false;
 
     public static Item getCurrencyItem(String currency) {
         var resourceLocation = new ResourceLocation(currency);

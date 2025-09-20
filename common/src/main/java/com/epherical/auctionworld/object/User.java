@@ -86,6 +86,25 @@ public class User implements DelegatedContainer {
         }
         NonNullList<ClaimedItem> items = NonNullList.create();
         loadAllItems(tag, items);
+
+        // Remove unused keys
+        var existingCurrenciesInWalletKeys = currencyMap.keySet();
+        var keysToRemove = new ArrayList<String>();
+        for (var key : existingCurrenciesInWalletKeys) {
+            if (Arrays.stream(Config.INSTANCE.currencies).noneMatch(currency -> currency.equals(key))) {
+                keysToRemove.add(key);
+            }
+        }
+        for (var key : keysToRemove) {
+            currencyMap.remove(key);
+        }
+
+        // Add new keys
+        for (var currency: Config.INSTANCE.currencies) {
+            if (!currencyMap.containsKey(currency)) {
+                currencyMap.put(currency, 0);
+            }
+        }
         return new User(uuid, name, items, currencyMap, null);
     }
 

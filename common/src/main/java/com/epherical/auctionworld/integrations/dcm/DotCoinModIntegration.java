@@ -46,7 +46,9 @@ public class DotCoinModIntegration {
 
     private static void changeCurrenciesToDotcoin() {
         LifecycleEvent.SETUP.register(() -> {
-            Config.INSTANCE.currencies = Arrays.stream(ModItems.coinConfigOrder).map(coin -> "dotcoinmod:" + coin + "_coin").toArray(String[]::new);
+            if (Config.INSTANCE.useDefaultDotCoinEconomy) {
+                Config.INSTANCE.currencies = Arrays.stream(ModItems.coinConfigOrder).map(coin -> "dotcoinmod:" + coin + "_coin").toArray(String[]::new);
+            }
         });
     }
 

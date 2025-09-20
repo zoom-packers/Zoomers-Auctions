@@ -5,6 +5,7 @@ import com.epherical.auctionworld.PlayerWallet;
 import com.epherical.auctionworld.WalletEntry;
 import com.epherical.auctionworld.client.widgets.AuctionBase;
 import com.epherical.auctionworld.client.widgets.AuctionMenuWidget;
+import com.epherical.auctionworld.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AuctionScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
@@ -70,6 +72,7 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
         if (walletEntries.isEmpty()) {
             return;
         }
+        walletEntries = sortWalletEntries(walletEntries);
         for (int i = 0; i < walletEntries.size(); i++) {
             var walletEntry = walletEntries.get(i);
             var currency = walletEntry.getCurrency();
@@ -84,6 +87,21 @@ public abstract class AuctionScreen<T extends AbstractContainerMenu> extends Abs
             var finalComponent = Component.literal(currencyLabel + ": " + available + " in wallet, " + inAuctions + " in auctions");
             graphics.drawString(font, finalComponent, finalX + 20, finalY + 5, 0xFFFFFF);
         }
+    }
+
+    private List<WalletEntry> sortWalletEntries(List<WalletEntry> walletEntries) {
+        var configCurrencies = Config.INSTANCE.currencies;
+        var result = new ArrayList<WalletEntry>();
+        for (var currency : configCurrencies) {
+            for (var currencyEntry : walletEntries) {
+                if (currencyEntry.getCurrency().equals(currency)) {
+                    result.add(currencyEntry);
+                    break;
+                }
+            }
+        }
+
+        return  result;
     }
 
     private void drawTitle(GuiGraphics graphics, int x, int y) {
