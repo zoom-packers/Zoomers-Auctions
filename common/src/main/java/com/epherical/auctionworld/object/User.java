@@ -333,7 +333,7 @@ public class User implements DelegatedContainer {
     }
 
     public int getCurrencyInAuctions(String currency) {
-        var auctionManager = AuctionTheWorldAbstract.getInstance().getAuctionManager(false);
+        var auctionManager = AuctionTheWorldAbstract.getInstance().serverAuctionManager;
         var auctions = auctionManager.getAuctions();
         int amount = 0;
         for (AuctionItem auction : auctions) {

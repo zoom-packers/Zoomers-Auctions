@@ -14,7 +14,7 @@ public record S2CAuctionUpdate(AuctionItem auctionItem) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.execute(() -> {
             minecraft.player.sendSystemMessage(Component.literal("Auction " + auctions.auctionItem.getAuctionID() + " has been updated"));
-            AuctionTheWorldAbstract.getInstance().getAuctionManager(true).updateAuctionItem(auctions.auctionItem);
+            AuctionTheWorldAbstract.clientAuctionManager.updateAuctionItem(auctions.auctionItem);
             if (minecraft.screen != null && minecraft.screen instanceof BrowseAuctionScreen screen) {
                 screen.reset();
             }

@@ -101,10 +101,6 @@ public class AuctionTheWorldAbstract {
         return mod;
     }
 
-    public AuctionManager getAuctionManager(boolean client) {
-        return client ? clientAuctionManager : serverAuctionManager;
-    }
-
     public UserManager getUserManager() {
         return userManager;
     }

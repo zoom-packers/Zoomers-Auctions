@@ -101,7 +101,7 @@ public class AuctionBlock extends Block {
     public static MenuProvider getMenuProviderGlobal() {
         return new SimpleMenuProvider((id, inventory, player) -> {
             AuctionTheWorldAbstract instance = AuctionTheWorldAbstract.getInstance();
-            AuctionManager manager = instance.getAuctionManager(false);
+            AuctionManager manager = AuctionTheWorldAbstract.serverAuctionManager;
             User user = instance.getUserManager().getUserByID(player.getUUID());
             user.sendWalletData();
             if (user.getLastReceivedAuctions() == null || user.getLastReceivedAuctions().isBefore(manager.getLastUpdated())) {

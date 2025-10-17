@@ -38,6 +38,9 @@ public class AuctionManager {
 
 
     public AuctionManager(AuctionStorage storage, boolean client, UserManager userManager) {
+        if (storage == null && userManager == null) {
+            return;
+        }
         this.storage = storage;
         this.userManager = userManager;
         this.auctionList =new ArrayList<>();

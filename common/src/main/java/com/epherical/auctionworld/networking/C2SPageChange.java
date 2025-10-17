@@ -18,7 +18,7 @@ public record C2SPageChange(int newPage) {
             if (listing.newPage <= 0) {
                 page = 1;
             }
-            AuctionManager aucManager = mod.getAuctionManager(false);
+            AuctionManager aucManager = AuctionTheWorldAbstract.serverAuctionManager;
             user.setCurrentPage(new Page(page, 10));
             mod.getNetworking().sendToClient(
                     new S2CSendAuctionListings(

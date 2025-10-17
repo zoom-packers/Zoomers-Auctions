@@ -68,7 +68,7 @@ public class AuctionListWidget extends ContainerObjectSelectionList<AuctionListW
         tooltipActive = false;
         setSelected(null);
         this.clearEntries();
-        this.addEntries(AuctionTheWorldAbstract.getInstance().getAuctionManager(true).getAuctions());
+        this.addEntries(AuctionTheWorldAbstract.clientAuctionManager.getAuctions());
     }
 
     public void tick() {
